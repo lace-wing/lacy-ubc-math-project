@@ -1,0 +1,7 @@
+[package]
+name = "ubc-mathgp"
+version = "0.1.0"
+entrypoint = "lib.typ"
+authors = ["Lacewing"]
+license = "MIT"
+description = "Template for UBC MATH 100 Group Projects"
