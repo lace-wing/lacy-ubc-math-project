@@ -4,8 +4,10 @@
   "getting-started",
   "setup",
   "author",
-  "caveats",
   "drawing",
+  "question",
+  "solution",
+  "caveats",
 )
 
 #let help = (:)

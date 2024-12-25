@@ -19,7 +19,6 @@ $qty(12, km) limm_(x->0)^"wut"$
 #hrule
 
 #question(3)[one #question("Extra, no")[two #question(1)[three]]]
+#link(<qs:1>)[what]
 
-#help.getting-started
-#help.drawing
-#help.author
+#help.question

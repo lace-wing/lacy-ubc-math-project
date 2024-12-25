@@ -76,7 +76,7 @@
   context grid(
     columns: (w, 100% - w - gut),
     column-gutter: gut,
-    align: (right, left),
+    align: (top+right, top+left),
 
     // Question number with label.
     [

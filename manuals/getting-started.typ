@@ -1,3 +1,5 @@
+#import "../format.typ": question, solution, __question-counters
+
 = Getting Started
 #quote[So, how do I even start using Typst?]
 
@@ -14,17 +16,7 @@ You have 2 options: working online or offline. Since this is a "group project" t
 Voilà! You are ready to start your math group project.
 
 == Initialize Projects
-To start a math group project, simply import this package (you should have done it already) and use the `setup` function to define the project details. Here is an example:
-```typst
-#import "@preview/ubc-math-group-project:0.1.0": * // This version number may be outdated, use the latest.
-#show: setup.with( // Use `.with()` instead of the full function.
-  number: 1,
-  flavor: "A",
-  group: "A Cool Math Group",
-  author("Jane", "Doe", 12345678),
-  author("John", "Smith", 87654321),
-)
-```
+To start a math group project, simply import this package (you should have done it already) and use the `setup()` function to define the project details.
 
 Fortunately, you don't have to remember all the details. #link("https://typst.app")[Typst web app] can handle the initialization for you.
 
@@ -32,13 +24,13 @@ In the project dashboard, next to "Empty document", click on "Start from a templ
 
 In the project just initialized, you will see 2 files: `common.typ` and `project1.typ`.
 
-If you are to reuse the template, create no new project, but add files to the existing one, like `project2typ`, `project3.typ`, etc.
+If you are to reuse the template, create no new project, but add files to the existing one, like `project2.typ`, `project3.typ`, etc.
 
 === `common.typ`
 This file is for common content that can be shared across all projects.
 For instance, your group name and members.
 ```typst
-#import "@local/ubc-math-group-project:0.1.0": author
+#import "@preview/ubc-math-group-project:0.1.0": author
 // Modify as you please.
 #let authors = (
   jane-doe: author("Jane", "Doe", "12345678"),
@@ -59,7 +51,7 @@ For instance, your group name and members.
 === `project1.typ`
 Here is where you write your project content.
 ```typst
-#import "@local/ubc-math-group-project:0.1.0": *
+#import "@preview/ubc-math-group-project:0.1.0": *
 #import "common.typ": * // Import the common content.
 #show: setup.with(
   number: 1,
@@ -74,7 +66,52 @@ Here is where you write your project content.
 
 Below this `#show: setup.with(...)` is your project content.
 
+== Questions & Solutions
+A math group project mostly consists of questions and solutions. You can use the `question()` and `solution()` functions to structure your content.
+#block(
+  breakable: false,
+  grid(
+    columns: (1.3fr, 1fr),
+    align: horizon,
+    ```typst
+    #question(1)[
+      What is the answer to the universe, life, and everything?
+      // The solution should be in the question.
+      #solution[
+        The answer is 42.
+      ]
+      // You can nest questions and solutions.
+      #question[2 points, -1 if wrong][
+        What do you get when you multiply six by nine?
+        #solution[
+          42\.
+        ]
+      ]
+    ```,
+    [
+      // #__question-counters.at(0).update(1)
+      // #question(1)[
+      //   // `1` more 1 point's worth.
+      //   What is the answer to the universe, life, and everything?
+      //   // It is important that the solution is inside of the question.
+      //   #solution[
+      //     The answer is 42.
+      //   ]
+      //   // You can nest questions and solutions.
+      //   #question[2 points, -1 if wrong][
+      //     What do you get when you multiply six by nine?
+      //     #solution[
+      //       42\.
+      //     ]
+      //   ]
+      // ]
+    ],
+  ),
+)
+
 == Learn Typst
 Yes, you do have to learn it, but it is simple (for our purpose).
 
 For general techniques, consult the #link("https://staging.typst.app/docs")[Typst documentation].
+
+For this template, you can find more help from the "Other helps" line at the bottom of each help section.
