@@ -17,22 +17,19 @@
       inset: font-size,
       stroke: blue + 0.5pt,
       [
-
-        #let body = include "manuals/" + section + ".typ"
-        #let title = body.children.find(c => c.func() == heading).body
-
-        #align(right)[#text(size: 8pt, fill: gray)[User Manual: #title]]
-        #v(font-size * -2)
         #set text(size: font-size)
+        #set heading(outlined: false)
         #show raw.where(block: false): r => box(
           fill: gray.lighten(70%),
-          radius: 0.5em,
-          inset: 0.45em,
-          baseline: 0.45em,
+          radius: 0.4em,
+          inset: 0.35em,
+          baseline: 0.35em,
           r,
         )
 
-        #body
+        #text(fill: gray)[User Manual]
+        #v(font-size * 0.5, weak: true)
+        #include "manuals/" + section + ".typ"
 
         #{
           import "shorthand.typ": hrule

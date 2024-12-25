@@ -19,7 +19,6 @@ There are other drawing packages available, but not imported by this template, h
 - #link("https://staging.typst.app/universe/package/neoplot")[neoplot]: Gnuplot integration.
 
 Find more visualization packages #link("https://staging.typst.app/universe/search/?category=visualization&kind=packages")[here].
-
 == Template Helpers
 Besides importing the drawing packages, the `drawing` module also provides some helper functions.
 

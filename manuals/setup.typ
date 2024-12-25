@@ -12,11 +12,11 @@ Then it is the authors. Since this is a "group project" template, `group` indica
 
 Finally, `authors`. Each author should be a dictionary with `name` and `id`. The `name` should be a dictionary with `first` and `last`. The `id` should be the student number. Such a dictionary can be created with function `author`. So, it will look like
 ```typst
-authors: (
-  author("Jane", "Doe", 12345678), // You are Jane Doe with student number 12345678
+// You are Jane Doe with student number 12345678
+author("Jane", "Doe", 12345678),
 )
 ```
-Be reminded that when there is only one author, you must put a trailing comma to tell Typst that it is an array. More authors, you ask? Just add more `author()`, separated by commas.
+More authors, you ask? Just add more `author()`, separated by commas.
 
 Title and authors made in `setup()` are converted to PDF metadata, which can be seen in the PDF document properties.
 

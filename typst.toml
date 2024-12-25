@@ -1,7 +1,17 @@
 [package]
-name = "ubc-mathgp"
+name = "ubc-math-group-project"
 version = "0.1.0"
 entrypoint = "lib.typ"
 authors = ["Lacewing"]
 license = "MIT"
-description = "Template for UBC MATH 100 Group Projects"
+description = "UBC MATH 100 group project template."
+repository = "https://github.com/lace-wing/ubc-math-group-project"
+keywords = ["University of British Columbia", "UBC", "math", "project"]
+categories = ["office", "layout", "components"]
+disciplines = ["education", "mathematics"]
+exclude = ["tests"]
+
+# [template]
+# path = "template"
+# entrypoint = ""
+# thumbnail = ""
