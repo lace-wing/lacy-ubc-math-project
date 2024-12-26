@@ -51,8 +51,6 @@ Hey there's a cool math problem, let's solve it!
   ]
 ]
 
-#context unsafe.__question-duplicates.final()
-
 // Use help.<section> to get help.
 #help.getting-started
 #help.setup
@@ -61,6 +59,4 @@ Hey there's a cool math problem, let's solve it!
 #help.question
 #help.solution
 #help.caveats
-
-#link(<qs:1-a>, "Next question")
 

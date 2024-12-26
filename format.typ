@@ -72,6 +72,16 @@
   let gut = 0.45em
   // Width of the question number, which is the width of an enum number.
   let w = measure(enum.item([])).width
+  // The question number#.
+  let numbers = range(0, level + 1).map(i => str(__question-counters.at(i).display(labels.at(i)))).join("-")
+  // Update the duplicate question numbers.
+  __question-duplicates.update(d => {
+    if numbers in d.keys() {
+      (..d, (numbers): d.at(numbers) + 1)
+    } else {
+      d + ((numbers): 1)
+    }
+  })
   context grid(
     columns: (w, 100% - w - gut),
     column-gutter: gut,
@@ -81,19 +91,12 @@
     [
       #__question-counters.at(level).display(numbering.at(level))
 
-      #let numbers = range(0, level + 1).map(i => str(__question-counters.at(i).display(labels.at(i)))).join("-")
-      #let _ = __question-duplicates.update(d => {
-        if numbers in d.keys() {
-          (..d, (numbers): d.at(numbers) + 1)
-        } else {
-          d + ((numbers): 1)
-        }
-      })
+      #let occ = __question-duplicates.get().at(numbers)
       #__question-duplicates.get()
       #label(
         "qs:"
           + numbers
-          // + if __question-duplicates.get().at(numbers) > 1 { "_" + str(__question-duplicates.at(numbers)) } else { "" },
+          + if occ > 1 { "_" + str(occ) } else { none },
       )
     ],
     // Question body.
