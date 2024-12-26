@@ -4,6 +4,7 @@
   "getting-started",
   "setup",
   "author",
+  "math",
   "drawing",
   "question",
   "solution",

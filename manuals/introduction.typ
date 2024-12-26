@@ -3,7 +3,7 @@
 = Introduction
 This template is designed to help you write and format your math group projects. It is based on the existing (2024) LaTex template. Despite the limited initial purpose, it offers a clean layout for possibly other types of question-solution documents.
 
-You are recommended to read the `getting-started` and `caveats` helps.
+You are recommended to read the `getting-started` and `math` helps.
 
 == Motivation
 Why use this template? The previous two popular choices, MS Word and LaTex, each had significant drawbacks. MS Word might be easy to start with, but math formatting is a nightmare; plus, software support is not so good on non-Windows platforms. LaTex, on the other hand, is powerful but has a steep learning curve, the source document becomes hardly readable after a few edits; collaboration is not simple as Word, since a free Overlead account can only have one collaborator per document, while an upgrade is (in my opinion) drastically overpriced.

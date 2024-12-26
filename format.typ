@@ -1,7 +1,4 @@
-#import "@preview/physica:0.9.3": *
-#import "@preview/metro:0.3.0": *
-#import units: *
-#import prefixes: *
+#import "@preview/equate:0.2.1": *
 
 // Question levels, corresponding numbering and labeling.
 
@@ -10,7 +7,9 @@
 // The current question level.
 #let __question-level = state("question-level", 0)
 // The question counters.
-#let __question-counters = range(1, __max-qs-level + 1).map(i => counter("qs-" + str(i)))
+#let __question-counters = range(1, __max-qs-level + 1).map(i => counter("question-" + str(i)))
+// Duplicate question numbers
+#let __question-duplicates = state("question-duplicates", (:))
 // Numbering for each question level.
 #let __question-numbering = (
   "1.",
@@ -66,7 +65,7 @@
   // Make sure the question level is within the supported range.
   assert(
     level <= __max-qs-level,
-    message: "Maximum question level exceeded. Only" + str(__max-qs-level) + "levels are supported.",
+    message: "Maximum question level exceeded. Only " + str(__max-qs-level) + " levels are supported.",
   )
 
   // Gutter between the question number and the question body.
@@ -76,17 +75,28 @@
   context grid(
     columns: (w, 100% - w - gut),
     column-gutter: gut,
-    align: (top+right, top+left),
+    align: (top + right, top + left),
 
     // Question number with label.
     [
       #__question-counters.at(level).display(numbering.at(level))
-      #label(
-        "qs"
-          + for i in range(0, level + 1) {
-            ":" + str(__question-counters.at(i).display(labels.at(i)))
-          },
-      )
+      #let numbers = range(0, level + 1).map(i => str(__question-counters.at(i).display(labels.at(i)))).join("-")
+      // #__question-duplicates.update(d => {
+      //   if numbers in d.keys() {
+      //     d.at(numbers) += 1
+      //   } else {
+      //     d.insert(numbers, 1)
+      //   }
+      // })
+
+      //DEBUG
+      // #__question-duplicates.update(d => {
+      //   assert(type(d) == dictionary)
+      //   d.insert(numbers, 1)
+      // })
+      //TODO understand
+
+      #label("qs:" + numbers)
     ],
     // Question body.
     [
@@ -114,7 +124,7 @@
 /// - body (content): The solution.
 /// - color (color): The color of the solution frame and text.
 /// - suppliment (content): The supplimental text to be displayed before the solution.
-#let solution(body, color: green-solution, suppliment: [*Solution*: ]) = {
+#let solution(body, color: green-solution, supplement: [*Solution*: ]) = {
   block(
     width: 100%,
     inset: 1em,
@@ -122,7 +132,7 @@
   )[
     #set align(left)
     #set text(fill: color)
-    #suppliment#body
+    #supplement#body
   ]
 }
 
@@ -212,6 +222,9 @@
   #show ref: set text(fill: blue.darken(30%), stroke: 0.2pt + blue.darken(30%))
   #show link: set text(fill: blue.darken(30%), stroke: 0.2pt + blue.darken(30%))
 
+  #show: equate.with(breakable: true, sub-numbering: true)
+  #set math.equation(numbering: "(1.1)")
+
   // Initialize the question counters.
   #for c in __question-counters {
     c.update(1)
@@ -255,8 +268,6 @@
 
     #v(1.3em)
   ]
-  #context document.author
 
   #body
-
 ]

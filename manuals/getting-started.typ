@@ -1,4 +1,6 @@
 #import "../format.typ": question, solution, __question-counters
+#import "showman.typ": setup
+#show: setup
 
 = Getting Started
 #quote[So, how do I even start using Typst?]
@@ -68,46 +70,22 @@ Below this `#show: setup.with(...)` is your project content.
 
 == Questions & Solutions
 A math group project mostly consists of questions and solutions. You can use the `question()` and `solution()` functions to structure your content.
-#block(
-  breakable: false,
-  grid(
-    columns: (1.3fr, 1fr),
-    align: horizon,
-    ```typst
-    #question(1)[
-      What is the answer to the universe, life, and everything?
-      // The solution should be in the question.
-      #solution[
-        The answer is 42.
-      ]
-      // You can nest questions and solutions.
-      #question[2 points, -1 if wrong][
-        What do you get when you multiply six by nine?
-        #solution[
-          42\.
-        ]
-      ]
-    ```,
-    [
-      // #__question-counters.at(0).update(1)
-      // #question(1)[
-      //   // `1` more 1 point's worth.
-      //   What is the answer to the universe, life, and everything?
-      //   // It is important that the solution is inside of the question.
-      //   #solution[
-      //     The answer is 42.
-      //   ]
-      //   // You can nest questions and solutions.
-      //   #question[2 points, -1 if wrong][
-      //     What do you get when you multiply six by nine?
-      //     #solution[
-      //       42\.
-      //     ]
-      //   ]
-      // ]
-    ],
-  ),
-)
+```typst
+#question(1)[
+  What is the answer to the universe, life, and everything?
+  // The solution should be in the question.
+  #solution[
+    The answer is 42.
+  ]
+  // You can nest questions and solutions.
+  #question[2 points, -1 if wrong][
+    What do you get when you multiply six by nine?
+    #solution[
+      42\.
+    ]
+  ]
+]
+``` <show>
 
 == Learn Typst
 Yes, you do have to learn it, but it is simple (for our purpose).
