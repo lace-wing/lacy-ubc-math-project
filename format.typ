@@ -92,7 +92,6 @@
       #__question-counters.at(level).display(numbering.at(level))
 
       #let occ = __question-duplicates.get().at(numbers)
-      #__question-duplicates.get()
       #label(
         "qs:"
           + numbers

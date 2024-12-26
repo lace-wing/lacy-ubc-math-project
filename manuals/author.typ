@@ -1,6 +1,3 @@
-#import "showman.typ": setup
-#show: setup
-
 == Author
 The `author()` function is to be used as an argument of the `setup()` function, providing an author dictionary. It takes the first name, last name, and student number as arguments. For example,
 ```typst

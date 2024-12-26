@@ -1,6 +1,4 @@
 #import "../format.typ": question, solution, __question-counters
-#import "showman.typ": setup
-#show: setup
 
 = Getting Started
 #quote[So, how do I even start using Typst?]

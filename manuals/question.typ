@@ -52,4 +52,4 @@ The `question()` function is to create a question block.
 )
 
 Questions can be referenced by their automatically assigned labels. For example, question 1.b.ii has label `<qs:1-b-ii>` and can be referenced by `#link(<qs:1-b-ii>)[That question]`. Note that it cannot be referenced by `@qs:1-b-ii`.
-If, for some reason, questions with the same numbering occurs multiple times, a number indicating order of occurrence will be appended to the label. For example, the first 1.b.ii will be labeled `<qs:1-b-ii>`, and the second occurrence of numbering will have label `<qs:1-b-ii_2>`.
+If, for some reason, questions with the same numbering occurs multiple times, a number indicating order of occurrence will be appended to the label. For example, the first 1.b will be labeled `<qs:1-b>`, and the second occurrence of numbering will have label `<qs:1-b_2>`.
