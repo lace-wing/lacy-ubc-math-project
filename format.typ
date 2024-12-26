@@ -80,23 +80,21 @@
     // Question number with label.
     [
       #__question-counters.at(level).display(numbering.at(level))
+
       #let numbers = range(0, level + 1).map(i => str(__question-counters.at(i).display(labels.at(i)))).join("-")
-      // #__question-duplicates.update(d => {
-      //   if numbers in d.keys() {
-      //     d.at(numbers) += 1
-      //   } else {
-      //     d.insert(numbers, 1)
-      //   }
-      // })
-
-      //DEBUG
-      // #__question-duplicates.update(d => {
-      //   assert(type(d) == dictionary)
-      //   d.insert(numbers, 1)
-      // })
-      //TODO understand
-
-      #label("qs:" + numbers)
+      #let _ = __question-duplicates.update(d => {
+        if numbers in d.keys() {
+          (..d, (numbers): d.at(numbers) + 1)
+        } else {
+          d + ((numbers): 1)
+        }
+      })
+      #__question-duplicates.get()
+      #label(
+        "qs:"
+          + numbers
+          // + if __question-duplicates.get().at(numbers) > 1 { "_" + str(__question-duplicates.at(numbers)) } else { "" },
+      )
     ],
     // Question body.
     [
