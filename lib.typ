@@ -3,6 +3,7 @@
 #import units: *
 #import prefixes: *
 #import "@preview/equate:0.2.1": *
+#show: equate.with(breakable: true, sub-numbering: true)
 
 #import "format.typ": setup, author, question, solution, green-solution
 #import "shorthand.typ": *

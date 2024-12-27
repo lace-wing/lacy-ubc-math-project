@@ -1,24 +1,6 @@
 #import "@local/ubc-math-group-project:0.1.0": *
-#import "common.typ": *
-#show: setup.with(
-  number: 2.1,
-  flavor: [A],
-  group: group-name,
-  authors.jane-doe,
-  authors.john-smith,
-  authors.alex-conquitlam,
-)
+#let __orig-counters = state("orig-couters", (1, 2, 3))
 
-#import drawing: *
-#cetz.canvas({
-  cylinder((1, 2), (2, 1), 3cm, fill-side: red.lighten(50%))
-})
-
-$qty(12, km) limm_(x->0)^"wut"$
-
-#hrule
-
-#question(3)[one #question("Extra, no")[two #question(1)[three]]]
-#link(<qs:1>)[what]
-
-#help.math
+#context for i in range(0, unsafe.__max-qs-level) {
+  unsafe.__question-counters.at(i).update(__orig-counters.get().at(i))
+}

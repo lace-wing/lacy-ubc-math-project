@@ -1,4 +1,4 @@
-== Author
+= Author
 The `author()` function is to be used as an argument of the `setup()` function, providing an author dictionary. It takes the first name, last name, and student number as arguments. For example,
 ```typst
 #show: setup.with(
@@ -10,6 +10,7 @@ Inside, the `author()` function will return a dictionary:
 ```typc
 author("Jane", "Doe", 12345678)
 ``` <show>
+
 And in the PDF metadata there will be a "Jane Doe" in the authors field, student number not included.
 
 What if your last name is k\u{02b7}ik\u{02b7}\u{0259}\u{019b}\u{0313}, that happens to type...
@@ -41,4 +42,4 @@ author(
   12345678,
   strname: "Gallileo Smith"
 )
-```
+``` <showt>

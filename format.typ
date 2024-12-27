@@ -1,5 +1,3 @@
-#import "@preview/equate:0.2.1": *
-
 // Question levels, corresponding numbering and labeling.
 
 // The maximum number of question levels.
@@ -91,7 +89,7 @@
     [
       #__question-counters.at(level).display(numbering.at(level))
 
-      #let occ = __question-duplicates.get().at(numbers)
+      #let occ = __question-duplicates.get().at(numbers, default: 1)
       #label(
         "qs:"
           + numbers
@@ -222,7 +220,6 @@
   #show ref: set text(fill: blue.darken(30%), stroke: 0.2pt + blue.darken(30%))
   #show link: set text(fill: blue.darken(30%), stroke: 0.2pt + blue.darken(30%))
 
-  #show: equate.with(breakable: true, sub-numbering: true)
   #set math.equation(numbering: "(1.1)")
 
   // Initialize the question counters.

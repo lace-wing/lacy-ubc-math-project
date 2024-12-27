@@ -1,5 +1,3 @@
-#import "../drawing.typ": *
-
 = Drawing
 As we are doing math, inevitably we will need to draw some graphs.
 Typst has some native drawing abilities, but they are very limited.
@@ -23,41 +21,80 @@ Find more visualization packages #link("https://staging.typst.app/universe/searc
 Besides importing the drawing packages, the `drawing` module also provides some helper functions.
 
 For example, the `cylinder()` function draws an upright no-perspective cylinder.
-#block(
-  breakable: false,
-  grid(
-    columns: (2fr, 1fr),
-    gutter: 1em,
-    align: horizon,
-    [
-      ```typst
-      #cetz.canvas({
-        import cetz.draw: *
-        group({
-          rotate(30deg)
-          cylinder(
-            (0, 0), // Center
-            (1.618, .6), // Radius: (x, y)
-            2cm / 1.618, // Height
-            fill-top: maroon.lighten(5%), // Top color
-            fill-side: blue.transparentize(80%), // Side color
-          )
-        })
-      })
-      ```
-    ],
+```typst
+#import drawing: *
+#cetz.canvas({
+  import cetz.draw: *
+  group({
+    rotate(30deg)
+    cylinder(
+      (0, 0), // Center
+      (1.618, .6), // Radius: (x, y)
+      2cm / 1.618, // Height
+      fill-top: maroon.lighten(5%), // Top color
+      fill-side: blue.transparentize(80%), // Side color
+    )
+  })
+})
+``` <show>
+
+== Example//s
+#[
+  // Import the drawing module for drawing abilities.
+  #import "../drawing.typ": * // You should use the next line instead
+  // #import drawing: *
+  #figure(
+    caption: [Adaptive path-position-velocity graph \ (check source code)],
     cetz.canvas({
       import cetz.draw: *
+      import cetz-plot: *
+      // Function to plot
+      let fx = x => -calc.root(x, 3)
+      // Derivative of the function
+      let fdx = x => -calc.pow(calc.root(x, 3), -2) / 3
+      // Linear approximation of the function
+      let la-fx = (x, a) => fdx(a) * (x - a) + fx(a)
+      // plot → canvas transformation
+      let ts = (x, y) => (x + 1, y).map(c => c * 2)
+
+      // Plot the function (object path)
+      plot.plot(
+        size: (4, 4),
+        axis-style: none,
+        name: "path",
+        {
+          plot.add-anchor("left", (-1, 0))
+          plot.add(
+            domain: (-1, 1),
+            fx,
+            style: (stroke: (paint: red, dash: "dashed", thickness: 1.2pt)),
+          )
+        },
+      )
+      // Canvas origin set to (-1, 0),
+      // size is 4 * 4, which is 2 times of plot (domain, range) = (2, 2),
+      // hence the transformation is (x + 1, y) * 2
+      set-origin("path.left")
+      // Draw laying cylinder
       group({
-        rotate(30deg)
-        cylinder(
-          (0, 0), // Center
-          (1.618, .6), // Radius: (x, y)
-          2cm / 1.618, // Height
-          fill-top: maroon.lighten(5%), // Top color
-          fill-side: blue.transparentize(80%), // Side color
-        )
+        rotate(90deg)
+        cylinder((0, 0), (2, 1), 4cm, fill-side: blue.transparentize(90%), fill-top: blue.transparentize(80%))
       })
+      // Draw object position and tangent line
+      let x = 0.8 // Try changing this!
+      let shift = 0.5
+      line(
+        ts(x, fx(x)),
+        ts(x + shift, la-fx(x + shift, x)),
+        stroke: purple,
+        mark: (end: "straight"),
+      )
+      circle(
+        ts(x, fx(x)),
+        radius: 2pt,
+        fill: purple,
+        stroke: none,
+      )
     }),
-  ),
-)
+  )
+]

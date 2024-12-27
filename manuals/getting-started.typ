@@ -85,6 +85,17 @@ A math group project mostly consists of questions and solutions. You can use the
 ]
 ``` <show>
 
+
+#question(1)[
+  #solution[]
+  #question(1)[
+    #solution[]
+    #question(1)[
+      #solution[]
+    ]
+  ]
+]
+
 == Learn Typst
 Yes, you do have to learn it, but it is simple (for our purpose).
 
