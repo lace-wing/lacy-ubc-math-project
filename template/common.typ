@@ -1,4 +1,4 @@
-#import "@preview/ubc-math-group-project:0.1.0": author
+#import "@preview/lacy-ubc-math-project:0.1.0": author
 
 #let group-name = [Please name your group.]
 

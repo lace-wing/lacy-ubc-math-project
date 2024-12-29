@@ -33,7 +33,7 @@
 #let help-setup(body) = {
   import "@preview/showman:0.1.2": runner
   let prefix-orig = (
-    "#import \"@preview/ubc-math-group-project:0.1.0\": *",
+    "#import \"@preview/lacy-ubc-math-project:0.1.0\": *",
     "#let __example-question-counters = range(1, unsafe.__max-qs-level + 1).map(i => counter(\"example-question-\" + str(i)))",
     "#for c in __example-question-counters {",
     "  c.update(1)",

@@ -18,7 +18,7 @@ To start a math group project, simply import this package (you should have done 
 
 Fortunately, you don't have to remember all the details. #link("https://typst.app")[Typst web app] can handle the initialization for you.
 
-In the project dashboard, next to "Empty document", click on "Start from a template", search and select "ubc-math-group-project", enter your own project name, create, that easy!
+In the project dashboard, next to "Empty document", click on "Start from a template", search and select "lacy-ubc-math-project", enter your own project name, create, that easy!
 
 In the project just initialized, you will see 2 files: `common.typ` and `project1.typ`.
 
@@ -28,7 +28,7 @@ If you are to add more projects for the same group, create no new project, but a
 This file is for common content that can be shared across all projects.
 For instance, your group name and members.
 ```typst
-#import "@preview/ubc-math-group-project:0.1.0": author
+#import "@preview/lacy-ubc-math-project:0.1.0": author
 // Modify as you please.
 #let authors = (
   jane-doe: author("Jane", "Doe", "12345678"),
@@ -43,13 +43,12 @@ For instance, your group name and members.
 // Additional common content that you may add.
 #let some-other-field = [Some other value]
 #let some-function(some-arg) = { some-manipulation; some-output }
-
 ```
 
 === `project1.typ`
 Here is where you write your project content.
 ```typst
-#import "@preview/ubc-math-group-project:0.1.0": *
+#import "@preview/lacy-ubc-math-project:0.1.0": *
 #import "common.typ": * // Import the common content.
 #show: setup.with(
   number: 1,
@@ -62,7 +61,7 @@ Here is where you write your project content.
 )
 ```
 
-When you create more project files like `project2.typ`, `project3.typ`, copy the topmost two ```typc import```'s and ```typc show```.
+When you create more project files like `project2.typ`, `project3.typ`, copy these topmost two ```typc import```'s and ```typc show```.
 Below this ```typst #show: setup.with(...)``` is your project content.
 
 == Questions & Solutions

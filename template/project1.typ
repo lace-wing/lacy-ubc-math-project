@@ -1,4 +1,4 @@
-#import "@preview/ubc-math-group-project:0.1.0": *
+#import "@preview/lacy-ubc-math-project:0.1.0": *
 // Import the common content.
 #import "common.typ": *
 #show: setup.with(
