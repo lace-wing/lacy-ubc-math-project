@@ -55,7 +55,7 @@
 ///
 /// - labels (array): The label numbering for each question level. Must not contain anything not allowed in `label`, e.g. spaces, dashes.
 ///  For example, `("1", "a", "i")` will result in question 1.1.1 being labeled with `<qs:1:a:i>`.
-#let question(point, body, numbering: __question-numbering, labels: __question-labels) = context {
+#let question(point, body, counters: __question-counters, numbering: __question-numbering, labels: __question-labels) = context {
   // Increment the question level.
   __question-level.update(n => n + 1)
   // Get the current question level.
@@ -71,7 +71,7 @@
   // Width of the question number, which is the width of an enum number.
   let w = measure(enum.item([])).width
   // The question number#.
-  let numbers = range(0, level + 1).map(i => str(__question-counters.at(i).display(labels.at(i)))).join("-")
+  let numbers = range(0, level + 1).map(i => str(counters.at(i).display(labels.at(i)))).join("-")
   // Update the duplicate question numbers.
   __question-duplicates.update(d => {
     if numbers in d.keys() {
@@ -87,7 +87,7 @@
 
     // Question number with label.
     [
-      #__question-counters.at(level).display(numbering.at(level))
+      #counters.at(level).display(numbering.at(level))
 
       #let occ = __question-duplicates.get().at(numbers, default: 1)
       #label(
@@ -109,10 +109,10 @@
   )
 
   // Increment the question counter at the current level.
-  __question-counters.at(level).step()
+  counters.at(level).step()
   // Set all lower level question counters to 1.
-  for i in range(level + 1, __question-counters.len()) {
-    __question-counters.at(i).update(1)
+  for i in range(level + 1, counters.len()) {
+    counters.at(i).update(1)
   }
   // Reduce the question level, leave.
   __question-level.update(n => n - 1)

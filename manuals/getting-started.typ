@@ -64,10 +64,10 @@ Here is where you write your project content.
 )
 ```
 
-Below this `#show: setup.with(...)` is your project content.
+Below this ```typst #show: setup.with(...)``` is your project content.
 
 == Questions & Solutions
-A math group project mostly consists of questions and solutions. You can use the `question()` and `solution()` functions to structure your content.
+A math group project mostly consists of questions and solutions. You can use the ```typc question()``` and ```typc solution()``` functions to structure your content.
 ```typst
 #question(1)[
   What is the answer to the universe, life, and everything?
@@ -85,16 +85,7 @@ A math group project mostly consists of questions and solutions. You can use the
 ]
 ``` <show>
 
-
-#question(1)[
-  #solution[]
-  #question(1)[
-    #solution[]
-    #question(1)[
-      #solution[]
-    ]
-  ]
-]
+#question(1)[#question(1)[]]
 
 == Learn Typst
 Yes, you do have to learn it, but it is simple (for our purpose).

@@ -14,14 +14,14 @@
   if tag == <show> {
     return (
       dir: ltr,
-      col: (1fr, 1fr),
+      cols: (1fr, 1fr),
       align: (x, y) => horizon + (right, left).at(calc.rem(x, 2)),
       line: grid.vline,
     )
   } else if tag == <showt> {
     return (
       dir: ttb,
-      col: 1,
+      cols: 1,
       align: (x, y) => (bottom, top).at(calc.rem(y, 2)),
       line: grid.hline,
     )
@@ -30,27 +30,20 @@
 
 #let help-setup(body) = {
   import "@preview/showman:0.1.2": runner
-  let prefix-orig = (
+  let prefix = (
     "#import \"@local/ubc-math-group-project:0.1.0\": *",
-    "#let __orig-counters = state(\"orig-counters\", ())",
-    "#context for c in unsafe.__question-counters {",
-    "  __orig-counters.update(cs => cs + (c.get(),))",
+    "#let __example-question-counters = range(1, unsafe.__max-qs-level + 1).map(i => counter(\"example-question-\" + str(i)))",
+    "#for c in __example-question-counters {",
+    "  c.update(1)",
     "}",
-    "#unsafe.__question-counters.at(0).update(1)",
+    "#let __example-question-labels = (\"ex+1\", \"ex+a\", \"ex+i\",)",
     "#set text(font: (\"DejaVu Serif\", \"New Computer Modern\"))",
+    "#let question = question.with(counters: __example-question-counters, labels: __example-question-labels)",
   ).join("\n")
-  let suffix-orig = (
-    "#context for i in range(0, unsafe.__max-qs-level) {",
-    //TODO
-    // "  unsafe.__question-counters.at(i).update(__orig-counters.get().at(i))",
-    "__orig-counters.get()",
-    "}",
-  ).join("\n")
+  let suffix = ""
   show raw.where(block: true): it => context {
     if "label" in it.fields() and it.label in (<show>, <showt>) and it.lang in ("typst", "typc") {
       let orientation = get-orientation(it.label)
-      let prefix = prefix-orig
-      let suffix = suffix-orig
       if it.lang == "typc" {
         prefix = prefix + "\n#{"
         suffix = "}\n" + suffix
@@ -66,7 +59,7 @@
             // breakable: false,
             width: 100%,
             grid(
-              columns: orientation.col,
+              columns: orientation.cols,
               align: orientation.align,
               inset: (x: 1em, y: 0.45em),
               grid.cell(input),
