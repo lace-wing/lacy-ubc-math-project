@@ -1,4 +1,4 @@
-#import "@local/ubc-math-group-project:0.1.0": *
+#import "@preview/ubc-math-group-project:0.1.0": *
 // Import the common content.
 #import "common.typ": *
 #show: setup.with(

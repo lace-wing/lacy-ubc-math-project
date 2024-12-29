@@ -11,7 +11,6 @@ categories = ["office", "layout", "components"]
 disciplines = ["education", "mathematics"]
 exclude = ["tests"]
 
-# [template]
-# path = "template"
-# entrypoint = ""
-# thumbnail = ""
+[template]
+path = "template"
+entrypoint = "common.typ"
