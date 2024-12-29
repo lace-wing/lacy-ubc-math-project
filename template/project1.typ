@@ -41,4 +41,5 @@
 #help.getting-started
 // #help.setup
 // #help.math
+// #help.drawing
 // #help.caveats

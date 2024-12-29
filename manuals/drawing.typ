@@ -1,5 +1,19 @@
 = Drawing
 As we are doing math, inevitably we will need to draw some graphs.
+
+Typically, you would not want to commit time and effort to learn drawing in Typst. Have your graphs done in Desmos, GeoGebra, or any other graphing tools, then display images of them.
+```typst
+#image("/template/assets/madeline-math.jpg", width: 12em) // n'em = length of n m's
+```
+#image("/template/assets/madeline-math.jpg", width: 12em)
+
+You may have noticed that the path in example starts with "/". It is not your computer's root directory, but the root directory of the project.
+
+If you are working offline, note that Typst cannot reach beyond the root directory, settable in the compiling command.
+
+== Drawing in Typst
+So...
+
 Typst has some native drawing abilities, but they are very limited.
 There is an ad hoc Typst drawing library, a package actually, called "cetz", with its graphing companion "cetz-plot".
 Simply

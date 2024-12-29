@@ -36,9 +36,10 @@
     "#for c in __example-question-counters {",
     "  c.update(1)",
     "}",
-    "#let __example-question-labels = (\"ex+1\", \"ex+a\", \"ex+i\",)",
+    "#let __example-question-labels = (\"ex:1\", \"a\", \"i\",)",
     "#set text(font: (\"DejaVu Serif\", \"New Computer Modern\"))",
     "#let question = question.with(counters: __example-question-counters, labels: __example-question-labels)",
+    "#show: equate.with(breakable: true, sub-numbering: true)",
   ).join("\n")
   let suffix = ""
   show raw.where(block: true): it => context {
@@ -61,7 +62,7 @@
             grid(
               columns: orientation.cols,
               align: orientation.align,
-              inset: (x: 1em, y: 0.45em),
+              inset: (x: 1em, y: 0.8em),
               grid.cell(input),
               orientation.at("line")(stroke: 0.5pt),
               grid.cell(output),

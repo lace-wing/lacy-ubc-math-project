@@ -1,5 +1,3 @@
-#import "../format.typ": question, solution, __question-counters
-
 = Getting Started
 #quote[So, how do I even start using Typst?]
 
@@ -16,7 +14,7 @@ You have 2 options: working online or offline. Since this is a "group project" t
 Voilà! You are ready to start your math group project.
 
 == Initialize Projects
-To start a math group project, simply import this package (you should have done it already) and use the `setup()` function to define the project details.
+To start a math group project, simply import this package (you should have done it already) and use the ```typc setup()``` function and edit `common.typ` to define the project.
 
 Fortunately, you don't have to remember all the details. #link("https://typst.app")[Typst web app] can handle the initialization for you.
 
@@ -24,7 +22,7 @@ In the project dashboard, next to "Empty document", click on "Start from a templ
 
 In the project just initialized, you will see 2 files: `common.typ` and `project1.typ`.
 
-If you are to reuse the template, create no new project, but add files to the existing one, like `project2.typ`, `project3.typ`, etc.
+If you are to add more projects for the same group, create no new project, but add files to the existing one, like `project2.typ`, `project3.typ`, etc.
 
 === `common.typ`
 This file is for common content that can be shared across all projects.
@@ -64,6 +62,7 @@ Here is where you write your project content.
 )
 ```
 
+When you create more project files like `project2.typ`, `project3.typ`, copy the topmost two ```typc import```'s and ```typc show```.
 Below this ```typst #show: setup.with(...)``` is your project content.
 
 == Questions & Solutions
@@ -85,10 +84,25 @@ A math group project mostly consists of questions and solutions. You can use the
 ]
 ``` <show>
 
-#question(1)[#question(1)[]]
-
 == Learn Typst
 Yes, you do have to learn it, but it is simple (for our purpose).
+
+Here is a quick peek at some useful syntaxes:
+```typst
+You will sometimes _emphasize important information_ in your questions and solutions. // 1 linebreak = 1 space.
+Or, go a step further to *boldly* state the matter. <ex:bold> // <label-name> to place a label.
+// 1+ blank lines = 1 paragraph break.
+
+Of course, we write math equations like $x^2 + y^2 = z^2 "with text and quantities, e.g." qty(2, cm)$. Need big math display?
+$ \$ "math" \$ = "display style math" $
+$
+  E = m c^2 \ // " \" = newline
+  limm_(x -> 0) f(x) = 0 #<eq:ex:lim> // Use #<label-name> in math.
+$
+// #link(<label-name>)[displayed text] to reference a label.
+// For equation, figure and bibliography, @label-name is also available.
+Want to get #link(<ex:bold>)[*_bold_*]? Let's look at @eq:ex:lim.
+``` <showt>
 
 For general techniques, consult the #link("https://staging.typst.app/docs")[Typst documentation].
 
