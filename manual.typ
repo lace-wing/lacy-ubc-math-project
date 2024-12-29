@@ -27,7 +27,7 @@
   it
 }
 
-#show: help-setup
-#for section in sections {
-  include "manuals/" + section + ".typ"
-}
+#for section in sections [
+  #show: help-setup
+  #include "manuals/" + section + ".typ"
+]

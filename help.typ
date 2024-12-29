@@ -1,4 +1,5 @@
 #let font-size = 10pt
+
 #let sections = (
   "introduction",
   "getting-started",
@@ -10,6 +11,7 @@
   "solution",
   "caveats",
 )
+
 #let get-orientation(tag) = {
   if tag == <show> {
     return (
@@ -30,7 +32,7 @@
 
 #let help-setup(body) = {
   import "@preview/showman:0.1.2": runner
-  let prefix = (
+  let prefix-orig = (
     "#import \"@local/ubc-math-group-project:0.1.0\": *",
     "#let __example-question-counters = range(1, unsafe.__max-qs-level + 1).map(i => counter(\"example-question-\" + str(i)))",
     "#for c in __example-question-counters {",
@@ -39,12 +41,15 @@
     "#let __example-question-labels = (\"ex:1\", \"a\", \"i\",)",
     "#set text(font: (\"DejaVu Serif\", \"New Computer Modern\"))",
     "#let question = question.with(counters: __example-question-counters, labels: __example-question-labels)",
+    "#set math.equation(numbering: \"(1.1)\")",
     "#show: equate.with(breakable: true, sub-numbering: true)",
   ).join("\n")
-  let suffix = ""
+  let suffix-orig = ""
   show raw.where(block: true): it => context {
     if "label" in it.fields() and it.label in (<show>, <showt>) and it.lang in ("typst", "typc") {
       let orientation = get-orientation(it.label)
+      let prefix = prefix-orig
+      let suffix = suffix-orig
       if it.lang == "typc" {
         prefix = prefix + "\n#{"
         suffix = "}\n" + suffix
@@ -80,6 +85,7 @@
     baseline: 0.35em,
     r,
   )
+
   body
 }
 

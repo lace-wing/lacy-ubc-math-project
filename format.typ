@@ -101,7 +101,7 @@
     ],
     // Question body.
     [
-      #if not point in (none, 0) {
+      #if point not in (none, 0) {
         if type(point) == str or type(point) == content [(#point)] else if (
           type(point) == int and point == 1
         ) [(#point point)] else [(#point points)]
