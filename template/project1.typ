@@ -38,3 +38,4 @@
 ]
 
 There is also a #link("https://github.com/lace-wing/lacy-ubc-math-project")[manual] for this project.
+
