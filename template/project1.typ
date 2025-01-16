@@ -3,7 +3,7 @@
 #import "common.typ": *
 #show: setup.with(
   number: 1,
-  flavor: [A],
+  flavor: [A], // Don't want a flavor? Just remove this line.
   group: group-name,
   authors.jane-doe,
   // If you just want all authors, instead write:

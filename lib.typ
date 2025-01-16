@@ -1,4 +1,5 @@
 #import "@preview/physica:0.9.3": *
+#show: super-T-as-transpose // Render "..^T" as transposed matrix
 #import "@preview/metro:0.3.0": *
 #import units: *
 #import prefixes: *
@@ -7,8 +8,6 @@
 #import "format.typ": author, question, solution, green-solution, toggle-solution
 #import "shorthand.typ": *
 #import "drawing.typ" as drawing
-
-// #import "help.typ": help
 
 #import "unsafe.typ" as unsafe
 
@@ -60,8 +59,6 @@
     assert("id" in a and type(a.id) in (int, content, str), message: msg-author)
   }
 
-  #show: equate.with(breakable: true, sub-numbering: true)
-
   #let title = {
     [#project]
     if number != none {
@@ -107,6 +104,7 @@
   #show ref: link_s
   #show link: link_s
 
+  #show: equate.with(breakable: true, sub-numbering: true)
   #set math.equation(numbering: "(1.1)")
 
   // Initialize the question counters.

@@ -95,7 +95,7 @@
 //START
 
 = Introduction <sc:intro>
-This template is designed to help you write and format your math group projects. It is based on the existing (2024) LaTex template. Despite the limited initial purpose, it offers a clean layout for possibly other types of question-solution documents.
+This template is designed to help you write and format your math group projects. It is based on the existing (2025) LaTex template. Despite the limited initial purpose, it offers a clean layout for possibly other types of question-solution documents.
 
 You are recommended to read the #link(<sc:start>, [Getting Started]) and #link(<sc:math>, [Math]).
 
@@ -185,7 +185,7 @@ Here is where you write your project content.
 #import "common.typ": * // Import the common content.
 #show: setup.with(
   number: 1,
-  flavor: [A],
+  flavor: [A], // Don't want a flavor? Just remove this line
   group: group-name,
   authors.jane-doe,
   // Say, Alex is absent for this project, so their entry is not included.
@@ -230,7 +230,7 @@ Here is a quick peek at some useful syntaxes:
   $ \$ "math" \$ = "display style math" $
   $
     E = m c^2 \ // " \" = newline
-    limm_(x -> 0) f(x) = 0 #<eq:ex:lim> // Use #<label-name> in math.
+    lim_(x -> 0) f(x) = 0 #<eq:ex:lim> // Use #<label-name> in math.
   $
   // #link(<label-name>)[displayed text] to reference a label.
   // For equation, figure and bibliography, @label-name is also available.
@@ -334,8 +334,19 @@ A space is required to display consecutive math letters, as ```typst $m c^2$``` 
 Most of the time, you have to leave a space between single letters to show consecutive letters.
 The template has you covered on some common multi-letter operators, like
 #showcode(```typst
-$lim_(x -> oo), limm_(x -> oo), inf$
+Inline math:
+$lim_(x->oo), limm_(x->oo)$
+$sum_(i=1)^n, summ_(i=1)^n$
+
+Block/display math:
+$
+  lim_(x -> oo) \
+  sum_(i = 0)^n \
+  dd(t), dv(,x), dv(y,x)
+$
 ```)
+
+/ Caution: Though you can, and sometimes want to use block style in inline math, be aware that the block expressions will occupy more vertical space (clear in the example above), separating lines or overlapping with surrounding texts.
 
 For "block" or "display" math, leave a space or newline between _both_ dollar signs and the equations.
 #showcode(```typst

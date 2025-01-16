@@ -1,10 +1,8 @@
 // Block style limit notation.
-#let limm = {
-  $limits("lim")$
-}
+#let limm = $limits("lim")$ 
 
-// Short name for the infinity symbol.
-#let inf = $infinity$
+// Block style sum notation.
+#let summ = $limits(sum)$
 
 // A horizontal rule.
 #let hrule = {
