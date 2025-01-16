@@ -161,7 +161,7 @@ If you are to add more projects for the same group, create no new project, but a
 This file is for common content that can be shared across all projects.
 For instance, your group name and members.
 ```typst
-#import "@preview/lacy-ubc-math-project:0.1.0": author
+#import "@preview/lacy-ubc-math-project:0.1.1": author
 // Modify as you please.
 #let authors = (
   jane-doe: author("Jane", "Doe", "12345678"),
@@ -181,7 +181,7 @@ For instance, your group name and members.
 === `project1.typ`
 Here is where you write your project content.
 ```typst
-#import "@preview/lacy-ubc-math-project:0.1.0": *
+#import "@preview/lacy-ubc-math-project:0.1.1": *
 #import "common.typ": * // Import the common content.
 #show: setup.with(
   number: 1,
