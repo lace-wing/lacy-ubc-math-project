@@ -1,0 +1,34 @@
+#import "@preview/lacy-ubc-math-project:0.2.0": *
+#show: setup.with(
+  project: "test proj",
+  author("Jane", "Doe", 12345678),
+)
+
+== test
+
+#question(2)[
+  
+
+  
+
+
+  #question(1)[
+    what
+
+    #question(1)[
+      what
+    ]
+  ]
+]
+
+#question(2)[
+  what
+
+  #question(1)[
+    what
+
+    #question(1)[
+      what
+    ]
+  ]
+]

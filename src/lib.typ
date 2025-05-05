@@ -1,11 +1,8 @@
 #import "@preview/physica:0.9.3": *
-#show: super-T-as-transpose // Render "..^T" as transposed matrix
-#import "@preview/metro:0.3.0": *
-#import units: *
-#import prefixes: *
+#import "@preview/unify:0.7.1": *
 #import "@preview/equate:0.2.1": *
 
-#import "format.typ": author, question, solution, green-solution, toggle-solution
+#import "format.typ": author, question, solution, toggle-solution
 #import "shorthand.typ": *
 #import "drawing.typ" as drawing
 
@@ -16,8 +13,8 @@
  *******/
 
 /// Setup for the document.
-/// [WARN] Do not provide an `array` for `authors`.
-/// Instead, simply provide as many author dictionaries (`author()`).
+/// [WARN] `authors` requires specific structure.
+/// Use function `author()` to help construct them.
 ///
 /// - project (str, content): The name of the project.
 /// - number (int, float, version, none): The number of the project.
@@ -99,18 +96,16 @@
   #set text(font: ("DejaVu Serif", "New Computer Modern"), size: 10pt)
   #let link_s = it => {
     set text(fill: blue.darken(30%))
-    underline(it)
+    it
   }
   #show ref: link_s
   #show link: link_s
 
+  #show: super-T-as-transpose // Render "..^T" as transposed matrix
   #show: equate.with(breakable: true, sub-numbering: true)
   #set math.equation(numbering: "(1.1)")
 
-  // Initialize the question counters.
-  #for c in unsafe.__question-counters {
-    c.update(1)
-  }
+  #show: unsafe.__question-ref-rule
 
   #[
     #set align(center)
