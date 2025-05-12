@@ -6,9 +6,25 @@
 
 #show ref: set text(red)
 
-#context [
+#let qs = question[
+  #solution[
+    some solution
+  ]
+
+  layer 1
+
+  #question[
+    layer 2
+
+    #question()[
+      layer 3
+    ]
+  ]
 ]
 
+#qs
+
+/*
 #question[
   `@qs:2-a-i`
   @qs:2-a-i
@@ -66,4 +82,3 @@
 
 `@qs:2-a-ii`
 @qs:2-a-ii
-

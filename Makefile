@@ -1,3 +1,4 @@
+VER = 0.2.0
 SRC = $(wildcard src/*.typ)
 CONF = $(wildcard src/*.pkl)
 
@@ -9,3 +10,7 @@ clean:
 	rm -f src/*.yaml
 	rm -f template/*.pdf
 	rm -f test/*.pdf
+
+repo: clean
+	rm -rf ~/src/my-typst/lacy-ubc-math-project/*
+	cp -r * ~/src/my-typst/lacy-ubc-math-project/

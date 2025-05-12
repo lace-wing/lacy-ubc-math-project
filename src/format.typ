@@ -7,7 +7,7 @@
 // The current question level.
 #let __question-level = state("question-level", 0)
 // Point of each question
-#let __question-list = state("question-points", ())
+#let __question-list = state("question-list", ())
 // The question counters.
 #let __question-counters = (
   (none,) + range(1, __question-level-max + 1).map(i => counter(figure.where(kind: "question-" + str(i))))
@@ -41,6 +41,42 @@
 }
 #let __solution-disabled = sys.inputs.at("hide-solution", default: "") in ("1", "true", "yes", "y")
 
+// Show rule for evaluating questions with point = auto
+#let __question-point-rule(body) = (
+  context {
+    let question-list = __question-list.final()
+    let max-count = calc.max(0, ..question-list.map(q => q.first().len()))
+
+    // if there is no auto in question point, stop
+    if question-list.find(q => q.at(1) == auto) == none { return }
+
+    // re-eval to remove auto
+    for level in range(max-count, 0, step: -1) {
+      let auto-list = question-list.filter(q => q.first().len() == level and q.at(1) == auto)
+      if auto-list == () { continue }
+
+      // if it's the deepest level
+      if level == max-count {
+        // set point to 0
+        __question-list.update(ql => (auto-list.map(q => (q.first(), 0)) + ql).dedup(key: q => q.first()))
+        continue
+      }
+
+      // else, collect points from children
+      let child-list = question-list.filter(q => q.first().len() == level + 1)
+      __question-list.update(ql => (
+        auto-list.map(q => (
+          q.first(),
+          child-list.filter(c => c.first().slice(0, level) == q.first()).map(c => c.at(1)).sum(default: 0),
+        ))
+          + ql
+      ).dedup(key: q => q.first()))
+    }
+  }
+    + body
+)
+
+// Show rule for automatic @qs:n display
 #let __question-ref-rule(body) = {
   show ref: it => context {
     let qs = it.element
@@ -88,7 +124,6 @@
 
   body
 }
-// #let __question-ref-rule(body) = body
 
 /// Creates an author (a `dictionary`).
 /// - firstname (str, content): The author's first name, bold when displayed.
@@ -140,66 +175,62 @@
   let kind = "question-" + str(level)
   // since we cannot `context` for the label, lets just store the supposed count now
   let count = __question-counters.at(level).get().first() + 1
-  let counts = range(1, level + 1).map(i => std.numbering(
-    __question-labels.at(i),
-    (if i == level { count } else { __question-counters.at(i).get().first() }),
-  ))
-  let counts-str = counts.join("-")
+  let counts = range(1, level + 1).map(i => if i == level { count } else { __question-counters.at(i).get().first() })
+  let counts-strs = counts.map(c => str(c))
 
   let label-str = if label == none {
-    "qs:" + counts-str
+    (
+      "qs:"
+        + counts
+          .enumerate()
+          .map(((i, c)) => std.numbering(
+            __question-labels.at(i + 1),
+            c,
+          ))
+          .join("-")
+    )
   } else if type(label) == str {
     "qs:" + label
   } else {
-    str(label)
+    "qs:" + str(label)
   }
-
-  // report question
-  __question-list.update(ps => (
-    // ps + ((counts-str): point)
-    ps + (counts-str,)
-  ))
 
   // get point
-  // let point-given-meta = metadata("__question-point-given-" + counts-str)
-
   let points = points.pos()
-
   let (point, point-display) = (auto, auto)
+  let is-point(p) = type(p) in (int, decimal) or p in (auto, none)
   if points.len() == 1 {
     let p = points.first()
-    if type(p) in (int, decimal) or p in (auto, none) { point = p } else { point-display = p }
+    if is-point(p) { point = p } else { point-display = p }
   } else if points != () {
     (point, point-display) = points.slice(0, 2)
+    assert(is-point(point), message: "Point, the first of multiple sink parameters, must be a number, auto or none.")
   }
 
-  if point in (auto, none) { point = 0 }
+  if point == none { point = 0 }
 
-  //TODO: config
-  // feature flag to choose between auto point and auto label
+  let question-list = __question-list.get()
+  if question-list.find(q => q.first() == counts) == none {
+    // before solidify auto point
+    // report question to tree
+    __question-list.update(ql => {
+      ql + ((counts, point),)
+    })
+  } else {
+    point = __question-list.final().find(q => q.first() == counts).at(1)
+  }
 
   /*
+    // get point from list
     if point == auto {
-      if level == __question-level-max {
-        point = 0
-        // } else if point-given-meta in query(metadata) {
-        // point = __question-points.final().at(counts-str)
-      } else {
-        point = {
-          let ps = __question-list.final()
-          // let keys = ps.keys().filter(k => k.starts-with(counts-str) and k.split("-").len() == level + 1)
-          // if keys == () { 0 } else { keys.fold(0, (p, k) => p + ps.at(k)) }
-
-          let keys = ps.filter(k => k.starts-with(counts-str) and k.split("-").len() == level + 1)
-          if keys == () { 0 } else { keys.fold(0, (p, k) => p + state("question-point-" + k).final()) }
-        }
-      }
+      // if level == __question-level-max {
+      //   point = 0
+      // } else {
+      point = __question-list.final().find(q => q.first() == counts)
+      // }
     } else if point == none {
       point = 0
     }
-
-    // report point
-    state("question-point-" + counts-str).update(point)
   */
 
   [

@@ -10,6 +10,7 @@ repository = "https://github.com/lace-wing/lacy-ubc-math-project"
 keywords = ["University of British Columbia", "UBC", "math", "project"]
 categories = ["office", "layout", "components"]
 disciplines = ["education", "mathematics"]
+exclude = ["test"]
 
 [template]
 path = "template"

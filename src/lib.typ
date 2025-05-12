@@ -2,7 +2,9 @@
 #import "@preview/unify:0.7.1": *
 #import "@preview/equate:0.2.1": *
 
-#import "format.typ": author, question, solution, toggle-solution
+#import "loader.typ": load-config, defaults
+// #import "format.typ": author, question, solution, toggle-solution
+#import "components.typ": author, question, solution
 #import "shorthand.typ": *
 #import "drawing.typ" as drawing
 
@@ -27,6 +29,7 @@
   number: none,
   flavor: none,
   group: none,
+  config: defaults,
   ..authors,
   body,
 ) = [
@@ -104,8 +107,6 @@
   #show: super-T-as-transpose // Render "..^T" as transposed matrix
   #show: equate.with(breakable: true, sub-numbering: true)
   #set math.equation(numbering: "(1.1)")
-
-  #show: unsafe.__question-ref-rule
 
   #[
     #set align(center)
