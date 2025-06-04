@@ -6,23 +6,47 @@
 
 #show ref: set text(red)
 
-#let qs = question[
-  #solution[
-    some solution
-  ]
+#import unsafe: *
 
-  layer 1
+= Read the Friendly Manual
 
-  #question[
-    layer 2
+#{
+  let grown = grow-branches(
+    (
+      [some preface],
+      question(
+        [some question],
+        [some math eqs],
+        solution[some solution],
 
-    #question()[
-      layer 3
-    ]
-  ]
-]
+        question(
+          point: 1,
+          [some sub-question],
 
-#qs
+          solution[some solution to a sub-question],
+        ),
+        [some content],
+        question(
+          point: 6,
+          [yet another sub-question],
+        ),
+      ),
+      [some mayonnaise],
+      question(
+        [some question],
+        [some math eqs],
+        solution[some solution @qs:1-a],
+      ),
+    ),
+    (),
+  ).first()
+
+  visualize-branches(grown).join()
+}
+
+#outline(title: [Questions], target: figure.where(kind: spec.question.kind))
+
+#pagebreak()
 
 /*
 #question[

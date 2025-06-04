@@ -2,9 +2,9 @@
 #import "@preview/unify:0.7.1": *
 #import "@preview/equate:0.2.1": *
 
-#import "loader.typ": load-config, defaults
-// #import "format.typ": author, question, solution, toggle-solution
-#import "components.typ": author, question, solution
+#import "loader.typ": load-config
+#import "format.typ": author
+#import "components.typ": question, solution
 #import "shorthand.typ": *
 #import "drawing.typ" as drawing
 
@@ -29,7 +29,6 @@
   number: none,
   flavor: none,
   group: none,
-  config: defaults,
   ..authors,
   body,
 ) = [
