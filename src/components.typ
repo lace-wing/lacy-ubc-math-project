@@ -22,6 +22,16 @@
       "i",
     ),
   ),
+  solution: (
+    kind: "lacy-solution",
+    supplement: "Solution to Question",
+    label-head: "sn:",
+    labelling: (
+      "1",
+      "a",
+      "i",
+    ),
+  ),
 )
 
 /// Generate text for point based on a numeric point value and a display guide.
@@ -49,6 +59,10 @@
     return []
   }
   return [(#point points) ]
+}
+
+#let id-label(id, head: spec.question.label-head) = {
+  label(head + id.enumerate().map(((x, i)) => numbering(spec.question.labelling.at(x), i)).join("-"))
 }
 
 /// Cast a magic of lacy dict.
@@ -153,64 +167,104 @@
         point-text(qsn.point, qsn.point-display) + qsn.components.join(),
       ),
     )
-
-    #label(
-      spec.question.label-head
-        + qsn.id.enumerate().map(((x, i)) => numbering(spec.question.labelling.at(x), i)).join("-"),
-    )
+    #id-label(qsn.id)
   ]
 }
 
-#let solution(supplement: [*Solution: *], ..args) = {
+#let solution(
+  supplement: [*Solution: *],
+  target: auto,
+  target-display: auto,
+  label: none,
+  ..args,
+) = {
   spell(
     spec.components.solution,
     supplement: supplement,
+    target: target,
+    target-display: target-display,
+    label: label,
     components: args.pos(),
     ..args.named(),
   )
 }
 
 #let solution-visualizer(sol) = {
-  block(
-    stroke: green + .1pt,
-    inset: .65em,
-    sol.supplement + sol.components.join(),
+  let target-display = (
+    {
+      if type(sol.target-display) == function {
+        (sol.target-display)(sol.target)
+      } else if sol.target-display == auto {
+        [
+          #set align(right)
+          #ref(id-label(sol.target))
+        ]
+      } else [
+        #set align(right)
+        #link(id-label(sol.target), sol.target-display)
+      ]
+    }
   )
+  [
+    #figure(
+      kind: spec.solution.kind,
+      supplement: spec.solution.supplement,
+      numbering: _ => sol.target.enumerate().map(((x, i)) => numbering(spec.question.numbering.at(x), i)).join(),
+      grid(
+        stroke: green + .1pt,
+        inset: .65em,
+        columns: 1fr,
+        align: left,
+        [
+          #target-display#sol.supplement#sol.components.join()
+        ],
+      ),
+    )
+    #if type(sol.label) == str {
+      label(spec.solution.label-head + sol.label)
+    }
+  ]
 }
 
 
-#let branch-grower(branch, parent, qs-num, components-grower) = {
+#let branch-grower(branch, parent, qs-count, components-grower) = {
   let btype = component-type(branch)
   let pt = 0
 
   if btype == spec.components.flat {
     // flat: no action
-    branch
   } else if btype == spec.components.solution {
     // solution:
     // - set target to parent question
-    branch.target = parent
+    if branch.target == auto {
+      branch.target = parent
+    }
+    // update target-display
+    if branch.target-display == auto {
+      if branch.target == parent {
+        branch.target-display = none
+      }
+    }
     // - grow components
     (branch.components, _) = components-grower(branch.components, parent)
-
-    branch
   } else if btype == spec.components.question {
     // question:
     // - assign ID
-    branch.id = parent + (qs-num,)
+    branch.id = parent + (qs-count,)
     // - grow components
     (branch.components, pt) = components-grower(branch.components, branch.id)
     // - collect points
     if branch.point == auto {
       branch.point = pt
     }
-
-    branch
   } else if btype == spec.components.feeder {
-    none
+    //TODO
   } else {
-    branch
+    panic("Unknown component type `" + btype + "`!")
   }
+
+  // finally return the branch
+  return branch
 }
 
 #let grow-branches(branches, parent) = {
@@ -246,12 +300,15 @@
       // first, visualize its components
       branch.components = visualize-branches(branch.components)
 
+      // then, call respective visualizer
       if btype == spec.components.question {
         question-visualizer(branch)
       } else if btype == spec.components.solution {
         solution-visualizer(branch)
       } else if btype == spec.components.feeder {
         feeder-visualizer(branch)
+      } else {
+        panic("Unknown componemnt type `" + btype + "`!")
       }
     }
   })

@@ -96,10 +96,7 @@
   #set page(numbering: none)
   #set par(first-line-indent: 0em)
   #set text(font: ("DejaVu Serif", "New Computer Modern"), size: 10pt)
-  #let link_s = it => {
-    set text(fill: blue.darken(30%))
-    it
-  }
+  #let link_s = text.with(fill: blue.darken(30%)) 
   #show ref: link_s
   #show link: link_s
 

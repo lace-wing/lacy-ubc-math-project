@@ -4,8 +4,6 @@
   author("Jane", "Doe", 12345678),
 )
 
-#show ref: set text(red)
-
 #import unsafe: *
 
 = Read the Friendly Manual
@@ -15,15 +13,18 @@
     (
       [some preface],
       question(
-        [some question],
-        [some math eqs],
+        [some question $ a x + b y + c z = d. $],
         solution[some solution],
 
         question(
           point: 1,
           [some sub-question],
 
-          solution[some solution to a sub-question],
+          solution(
+            target: (1, 2),
+            target-display: [guess who's not solved? you!],
+            label: "you",
+          )[some solution to a sub-question, ref it by `@sn:you`: @sn:you],
         ),
         [some content],
         question(
@@ -33,9 +34,8 @@
       ),
       [some mayonnaise],
       question(
-        [some question],
-        [some math eqs],
-        solution[some solution @qs:1-a],
+        [some question $section 42$ do not answer.],
+        solution(target: (1,))[some solution. also @qs:1-a],
       ),
     ),
     (),
@@ -44,7 +44,7 @@
   visualize-branches(grown).join()
 }
 
-#outline(title: [Questions], target: figure.where(kind: spec.question.kind))
+#outline(title: [Q&A], target: figure.where(kind: spec.question.kind).or(figure.where(kind: spec.solution.kind)))
 
 #pagebreak()
 
