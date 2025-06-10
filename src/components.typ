@@ -24,7 +24,7 @@
   ),
   solution: (
     kind: "lacy-solution",
-    supplement: "Solution to Question",
+    supplement: "Solution",
     label-head: "sn:",
     labelling: (
       "1",
@@ -85,27 +85,59 @@
   return spec.components.flat
 }
 
-/// Gather immediate children components of a type, they can be _more than 1 layer apart_.
+/// Find the first (DFS) instance of component that matches all the predicates.
+/// Returns an array of 2 elements, firstly, if there is a match, secondly, the first match, if any.
 ///
-/// - comp (dictionary): The component to find children from.
-/// - type (auto, str): The type of children to find. Set to type of the `comp` if left `auto`.
+/// - tree (array): The tree containing branches of component.
+/// - pred (argument): The predicates to match with the components. For positional predicates, each will be compared with components directly, or being called with a component to return a `bool` if it is a function. For named predicates, they will be searched in components as `dictionary` key-value pairs.
+/// - no-components (bool): Whether to set `components: none` for the component found. Use `true` if the child components of a component does not matter.
 /// -> array
-#let gather-child(comp, type: auto) = {
-  if type == auto {
-    type = comp.type
+#let find-component(tree, ..pred, no-components: true) = {
+  let pcomp = pred.pos()
+  let pfield = pred.named()
+
+  for branch in tree {
+    if type(branch) != dictionary and pfield != (:) {
+      continue
+    }
+
+    if (
+      pcomp.fold(
+        true,
+        (can, pred) => {
+          if not can { return false }
+          if type(pred) == function {
+            return pred(branch)
+          } else {
+            return branch == pred
+          }
+        },
+      )
+        and pfield
+          .pairs()
+          .fold(
+            true,
+            (can, pred) => {
+              if not can { return false }
+              return branch.keys().contains(pred.first()) and branch.at(pred.first()) == pred.last()
+            },
+          )
+    ) {
+      return (
+        true,
+        (
+          if no-components {
+            branch + (components: none)
+          } else { branch }
+        ),
+      )
+    } else if component-type(branch) != spec.components.flat {
+      let (found, comp) = find-component(branch.components, ..pred)
+      if found { return (true, comp) }
+    }
   }
-  comp
-    .components
-    .map(leaf => {
-      let ltype = component-type(leaf)
-      if ltype == type {
-        leaf
-      } else if ltype != spec.components.flat {
-        gather-child(leaf, type: type)
-      }
-    })
-    .filter(el => el != none)
-    .flatten()
+
+  return (false, none)
 }
 
 #let flat-visualizer(flat) = {
@@ -136,7 +168,7 @@
   [#(tak.proc)(..tak.components)]
 }
 
-#let question(point: auto, point-display: auto, ..args) = {
+#let question(point: auto, point-display: auto, label: auto, ..args) = {
   assert(type(point) in (int, decimal) or point == auto)
 
   spell(
@@ -144,6 +176,7 @@
     point: point,
     point-display: point-display,
     id: auto,
+    label: label,
     components: args.pos(),
     ..args.named(),
   )
@@ -167,7 +200,13 @@
         point-text(qsn.point, qsn.point-display) + qsn.components.join(),
       ),
     )
-    #id-label(qsn.id)
+    #if qsn.label == auto {
+      id-label(qsn.id)
+    } else if type(qsn.label) == str {
+      label(spec.question.label-head + qsn.label)
+    } else {
+      qsn.label
+    }
   ]
 }
 
@@ -192,17 +231,19 @@
 #let solution-visualizer(sol) = {
   let target-display = (
     {
-      if type(sol.target-display) == function {
-        (sol.target-display)(sol.target)
-      } else if sol.target-display == auto {
-        [
-          #set align(right)
-          #ref(id-label(sol.target))
-        ]
-      } else [
+      if sol.target-display == auto [
         #set align(right)
-        #link(id-label(sol.target), sol.target-display)
-      ]
+        #ref(id-label(sol.target))
+      ] else {
+        if type(sol.target-display) == function {
+          (sol.target-display)(sol.target)
+        } else if sol.target-display != none [
+          #set align(right)
+          #link(id-label(sol.target), sol.target-display)
+        ] else {
+          none
+        }
+      }
     }
   )
   [
@@ -222,6 +263,8 @@
     )
     #if type(sol.label) == str {
       label(spec.solution.label-head + sol.label)
+    } else {
+      sol.label
     }
   ]
 }
@@ -246,48 +289,48 @@
       }
     }
     // - grow components
-    (branch.components, _) = components-grower(branch.components, parent)
+    (branch.components, _, _) = components-grower(branch.components, parent)
   } else if btype == spec.components.question {
     // question:
     // - assign ID
     branch.id = parent + (qs-count,)
     // - grow components
-    (branch.components, pt) = components-grower(branch.components, branch.id)
+    (branch.components, pt, _) = components-grower(branch.components, branch.id)
     // - collect points
     if branch.point == auto {
       branch.point = pt
     }
   } else if btype == spec.components.feeder {
-    //TODO
+    // feeder:
+    // - ignore the feed and continue to its components
+    (branch.components, _, qs-count) = components-grower(branch.components, parent, qs-count: qs-count)
   } else {
     panic("Unknown component type `" + btype + "`!")
   }
 
   // finally return the branch
-  return branch
+  return (branch, qs-count)
 }
 
-#let grow-branches(branches, parent) = {
+#let grow-branches(branches, parent, qs-count: 0) = {
   // initialize from branches
-  branches
-    .fold(
-      ((), 0, 0),
-      ((bs, pt, num), branch) => {
-        // update root question ID
-        if component-type(branch) == spec.components.question {
-          num += 1
-        }
-        // start growing the branch
-        let grown = branch-grower(branch, parent, num, grow-branches)
+  branches.fold(
+    ((), 0, qs-count),
+    ((bs, pt, qc), branch) => {
+      // update root question ID
+      if component-type(branch) == spec.components.question {
+        qc += 1
+      }
+      // start growing the branch
+      let (grown, qc) = branch-grower(branch, parent, qc, grow-branches)
 
-        (
-          bs + (grown,),
-          pt + grown.at("point", default: 0),
-          num,
-        )
-      },
-    )
-    .slice(0, 2)
+      (
+        bs + (grown,),
+        pt + grown.at("point", default: 0),
+        qc,
+      )
+    },
+  )
 }
 
 #let visualize-branches(branches) = {

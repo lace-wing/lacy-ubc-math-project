@@ -8,6 +8,8 @@
 
 = Read the Friendly Manual
 
+#show "42": text(red)[*42*]
+
 #{
   let grown = grow-branches(
     (
@@ -33,9 +35,22 @@
         ),
       ),
       [some mayonnaise],
+      feeder(
+        table,
+        columns: (1fr,) * 2,
+        table.header([This], [That]),
+
+        solution(label: <fed>)[some solution fed into a table that refs itself: @fed],
+        question(
+          [the answer?],
+          solution[42],
+        ),
+        solution[some solution fed into a table],
+      ),
       question(
+        label: <wut>,
         [some question $section 42$ do not answer.],
-        solution(target: (1,))[some solution. also @qs:1-a],
+        solution(target: (1,))[some solution. I also ref @qs:1-a and @wut],
       ),
     ),
     (),
@@ -43,6 +58,21 @@
 
   visualize-branches(grown).join()
 }
+
+#find-component(
+  (
+    1,
+    2,
+    spell("feeder")
+      + (
+        can: "has",
+        components: (
+          spell("feeder") + (can: "not"),
+        ),
+      ),
+  ),
+  can: "has",
+)
 
 #outline(title: [Q&A], target: figure.where(kind: spec.question.kind).or(figure.where(kind: spec.solution.kind)))
 
