@@ -34,14 +34,59 @@
   ),
 )
 
-/// Generate text for point based on a numeric point value and a display guide.
+/// Cast a magic of lacy dict.
+///
+/// - impl (dictionary): Implementation of component identifiers.
+/// - type (str): Type of the component.
+///
+/// -> dictionary
+#let spell(type, ..args) = {
+  assert(type in spec.components.keys(), message: "Component type \"" + type + "\" is not supported")
+  return (magic: spec.magic, class: spec.class, type: type, ..args.named())
+}
+
+#let component-type(comp) = {
+  if type(comp) == dictionary {
+    if comp.at("magic", default: none) == spec.magic and comp.at("class", default: none) == spec.class {
+      return comp.type
+    }
+  }
+  return spec.components.flat
+}
+
+#let qsn-info(..args) = {
+  args = args.pos()
+  let fst = args.first()
+  if fst == none {
+    return (
+      id: (),
+      label: none,
+    )
+  }
+  if component-type(fst) == spec.components.question {
+    return (
+      id: fst.id,
+      label: fst.label,
+    )
+  }
+  (
+    id: fst,
+    label: args.at(1),
+  )
+}
+
+#let question-labeller(id, head: spec.question.label-head) = {
+  label(head + id.enumerate().map(((x, i)) => numbering(spec.question.labelling.at(x), i)).join("-"))
+}
+
+/// Generate content for displaying point of a question based on a numeric point value and a display guide.
 /// When `point-display == auto`, generate appropriate English point text.
 /// [WARN] Does not leave trailing space when `point-display` is a `function`.
 ///
 /// - point (int, decimal): The numeric point.
 /// - point-display (auto, str, content, function): The content to display, give `auto` for automatic point display, can be a function that accepts a numeric point argument.
 /// -> content
-#let point-text(point, point-display) = {
+#let point-visualizer(point, point-display) = {
   // if display is func: call it
   if type(point-display) == function {
     return point-display(point)
@@ -61,28 +106,27 @@
   return [(#point points) ]
 }
 
-#let id-label(id, head: spec.question.label-head) = {
-  label(head + id.enumerate().map(((x, i)) => numbering(spec.question.labelling.at(x), i)).join("-"))
-}
-
-/// Cast a magic of lacy dict.
-///
-/// - impl (dictionary): Implementation of component identifiers.
-/// - type (str): Type of the component.
-///
-/// -> dictionary
-#let spell(type, ..args) = {
-  assert(type in spec.components.keys(), message: "Component type \"" + type + "\" is not supported")
-  return (magic: spec.magic, class: spec.class, type: type, ..args.named())
-}
-
-#let component-type(comp) = {
-  if type(comp) == dictionary {
-    if comp.at("magic", default: none) == spec.magic and comp.at("class", default: none) == spec.class {
-      return comp.type
-    }
+#let target-visualizer(target, target-display) = {
+  // if not to display, return none
+  if none in (target, target-display) {
+    return none
   }
-  return spec.components.flat
+  // if display is auto, display it
+  if target-display == auto {
+    return [
+      #set align(right)
+      #ref(target)
+    ]
+  }
+  // if display is function, call it
+  if type(target-display) == function {
+    return (target-display)(target)
+  }
+  // if display is definite, show it with link to target
+  return [
+    #set align(right)
+    #link(target, target-display)
+  ]
 }
 
 /// Find the first (DFS) instance of component that matches all the predicates.
@@ -159,7 +203,6 @@
   )
 }
 
-
 /// Calls a `feeder.proc` with its components, wrapped in a content block.
 ///
 /// - feeder (dictionary): The `feeder` to visualize.
@@ -182,6 +225,8 @@
   )
 }
 
+#let question-container(qsn) = { }
+
 #let question-visualizer(qsn) = {
   [
     #figure(
@@ -197,21 +242,15 @@
           spec.question.numbering.at(qsn.id.len() - 1),
           qsn.id.last(),
         ),
-        point-text(qsn.point, qsn.point-display) + qsn.components.join(),
+        point-visualizer(qsn.point, qsn.point-display) + qsn.components.join(),
       ),
     )
-    #if qsn.label == auto {
-      id-label(qsn.id)
-    } else if type(qsn.label) == str {
-      label(spec.question.label-head + qsn.label)
-    } else {
-      qsn.label
-    }
+    #qsn.label
   ]
 }
 
 #let solution(
-  supplement: [*Solution: *],
+  supplement: none,
   target: auto,
   target-display: auto,
   label: none,
@@ -229,46 +268,37 @@
 }
 
 #let solution-visualizer(sol) = {
-  let target-display = (
-    {
-      if sol.target-display == auto [
-        #set align(right)
-        #ref(id-label(sol.target))
-      ] else {
-        if type(sol.target-display) == function {
-          (sol.target-display)(sol.target)
-        } else if sol.target-display != none [
-          #set align(right)
-          #link(id-label(sol.target), sol.target-display)
-        ] else {
-          none
-        }
-      }
-    }
-  )
+  let no-newline(c) = {
+    show linebreak: none
+    c
+  }
   [
     #figure(
       kind: spec.solution.kind,
       supplement: spec.solution.supplement,
-      numbering: _ => sol.target.enumerate().map(((x, i)) => numbering(spec.question.numbering.at(x), i)).join(),
+      numbering: _ => {
+        show linebreak: none
+        if sol.target != none {
+          [to #ref(sol.target)]
+        } else {
+          // remove the space between supplement and numbering
+          h(-.3em)
+        }
+      },
       grid(
         stroke: green + .1pt,
         inset: .65em,
         columns: 1fr,
         align: left,
         [
-          #target-display#sol.supplement#sol.components.join()
+          #target-visualizer(sol.target, sol.target-display)#sol.supplement#sol.components.join()
+          //TODO: markscheme grid
         ],
       ),
     )
-    #if type(sol.label) == str {
-      label(spec.solution.label-head + sol.label)
-    } else {
-      sol.label
-    }
+    #sol.label
   ]
 }
-
 
 #let branch-grower(branch, parent, qs-count, components-grower) = {
   let btype = component-type(branch)
@@ -276,30 +306,40 @@
 
   if btype == spec.components.flat {
     // flat: no action
+  } else if btype == spec.components.question {
+    // question:
+    // - assign ID
+    branch.id = parent.id + (qs-count,)
+    // - assign label
+    if branch.label == auto {
+      branch.label = question-labeller(branch.id)
+    } else if type(branch.label) == str {
+      branch.label = label(spec.question.label-head + branch.label)
+    }
+    // - grow components
+    (branch.components, pt, _) = components-grower(branch.components, qsn-info(branch))
+    // - collect points
+    if branch.point == auto {
+      branch.point = pt
+    }
   } else if btype == spec.components.solution {
     // solution:
+    // - assign label
+    if type(branch.label) == str {
+      branch.label = label(spec.solution.label-head + branch.label)
+    }
     // - set target to parent question
     if branch.target == auto {
-      branch.target = parent
+      branch.target = parent.label
     }
     // update target-display
     if branch.target-display == auto {
-      if branch.target == parent {
+      if branch.target == parent.label {
         branch.target-display = none
       }
     }
     // - grow components
     (branch.components, _, _) = components-grower(branch.components, parent)
-  } else if btype == spec.components.question {
-    // question:
-    // - assign ID
-    branch.id = parent + (qs-count,)
-    // - grow components
-    (branch.components, pt, _) = components-grower(branch.components, branch.id)
-    // - collect points
-    if branch.point == auto {
-      branch.point = pt
-    }
   } else if btype == spec.components.feeder {
     // feeder:
     // - ignore the feed and continue to its components
