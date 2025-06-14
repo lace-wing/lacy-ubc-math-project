@@ -2,13 +2,16 @@
 #import "@preview/unify:0.7.1": *
 #import "@preview/equate:0.2.1": *
 
-#import "loader.typ": load-config
-#import "format.typ": author
-#import "components.typ": question, solution
-#import "shorthand.typ": *
-#import "drawing.typ" as drawing
+#import "defaults.typ"
+#import "loader.typ"
 
-#import "unsafe.typ" as unsafe
+#import "components.typ"
+#import components: question, solution, feeder
+#import "components.typ": author, question, solution
+#import "shorthand.typ": *
+#import "drawing.typ"
+
+#import "unsafe.typ"
 
 /*******
  * Setup
@@ -29,34 +32,18 @@
   number: none,
   flavor: none,
   group: none,
+  config: (),
   ..authors,
   body,
 ) = [
-  #let authors = authors.pos()
-  // Make sure the project name is a string or content.
-  #assert(type(project) in (str, content), message: "The project name must be a string or content.")
-  // Make sure the project number is a number.
-  #assert(
-    number == none or type(number) in (int, float, version),
-    message: "The project number, if set, must be an integer, float or version.",
-  )
-  // Make sure the project flavor is a string or content.
-  #assert(
-    flavor == none or type(flavor) in (str, content),
-    message: "The project flavor, if set, must be a string or content.",
-  )
-  // Make sure the group is a string or content.
-  #assert(group == none or type(group) in (str, content), message: "The group, if set, must be a string or content.")
-  // Make sure the authors are properly structured.
-  #assert(type(authors) == array and authors.len() > 0, message: "At least one author is required.")
-  #let msg-author = "Malformed author information. Consider using the `author` function for author information."
-  #for a in authors {
-    assert(type(a) == dictionary, message: msg-author)
-    assert("name" in a and type(a.name) == dictionary, message: msg-author)
-    assert("first" in a.name and type(a.name.first) in (str, content), message: msg-author)
-    assert("last" in a.name and type(a.name.last) in (str, content), message: msg-author)
-    assert("id" in a and type(a.id) in (int, content, str), message: msg-author)
+  #{
+    if type(config) != array {
+      config = (config,)
+    }
+    config = loader.merge-configs(defaults, ..config)
   }
+
+  #let authors = authors.pos().map(a => if type(a) == function { a() } else { a })
 
   #let title = {
     [#project]
@@ -96,7 +83,7 @@
   #set page(numbering: none)
   #set par(first-line-indent: 0em)
   #set text(font: ("DejaVu Serif", "New Computer Modern"), size: 10pt)
-  #let link_s = text.with(fill: blue.darken(30%)) 
+  #let link_s = text.with(fill: blue.darken(30%))
   #show ref: link_s
   #show link: link_s
 

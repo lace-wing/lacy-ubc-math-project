@@ -1,41 +1,32 @@
-#import "defaults.typ"
-
-#let merge-dict(orig, cand) = {
-  cand
-    .keys()
-    .fold(
-      orig,
-      (acc, k) => if k in orig.keys() and type(orig.at(k)) == dictionary and type(cand.at(k)) == dictionary {
-        acc + ((k): merge-dict(orig.at(k), cand.at(k)))
-      } else {
-        acc + ((k): cand.at(k))
-      },
-    )
+#let try-dictionary(data) = {
+  let t = type(data)
+  if t == dictionary {
+    return data
+  }
+  if t == module {
+    return dictionary(data)
+  }
+  if t == function {
+    return try-dictionary(t())
+  }
+  panic("Cannot convert a " + t + " to a dictionary!")
 }
 
-#let configs = (
-  "impl",
-  "info",
-  "features",
-  "colors",
+#let merge-dicts(..dicts) = (
+  dicts
+    .pos()
+    .reduce((orig, cand) => cand
+      .keys()
+      .fold(
+        orig,
+        (acc, k) => if k in orig.keys() and type(orig.at(k)) == dictionary and type(cand.at(k)) == dictionary {
+          acc + ((k): merge-dicts(orig.at(k), cand.at(k)))
+        } else {
+          acc + ((k): cand.at(k))
+        },
+      ))
 )
 
-#let load-config(config, default: true) = {
-  let defaults = dictionary(defaults)
-  let cadidate = (:)
+#let merge-configs(..conf) = merge-dicts(..conf.pos().map(c => try-dictionary(c).at("config", default: (:))))
 
-  if type(config) == str {
-    assert(
-      config.split("/").last() in configs.map(c => c + ".typ"),
-      message: "\"" + config + "\" is not a valid config. Choose one among " + configs.join(", ", last: " and ") + ".",
-    )
-    import config as cmod
-    cadidate = dictionary(cmod)
-  } else if type(config) == dictionary {
-    cadidate = config
-  } else {
-    panic("Config must be path to a config or a dictionary.")
-  }
 
-  if default { merge-dict(defaults, cadidate) } else { cadidate }
-}
