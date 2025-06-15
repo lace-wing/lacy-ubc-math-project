@@ -1,13 +1,27 @@
 #import "components.typ": author
 
-#let default-container(
+#let question-container(
   func,
   args,
-  ..bodies,
+  items,
 ) = {
+  let (number, point, main) = items
   func(
     ..args,
-    ..bodies,
+    number,
+    point + main,
+  )
+}
+
+#let solution-container(
+  func,
+  args,
+  items,
+) = {
+  let (target, supplement, main) = items
+  func(
+    ..args,
+    target + supplement + main,
   )
 }
 
@@ -27,9 +41,9 @@
   question: (
     numbering: ("1.", "a.", "i."),
     labelling: ("1", "a", "i"),
-    container: default-container,
+    container: question-container,
   ),
   solution: (
-    container: default-container,
+    container: solution-container,
   ),
 )

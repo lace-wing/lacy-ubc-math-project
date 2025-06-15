@@ -1,29 +1,45 @@
 #import "@preview/lacy-ubc-math-project:0.2.0": *
 #import unsafe: * //DEBUG
 #import "config.typ"
-// #show: setup.with(
-//   project: "test proj",
-//   author("Jane", "Doe", 12345678),
-// )
+#show: setup.with(
+  project: "test proj",
+  author("Jane", "Doe", 12345678),
+)
 
 #show "42": [*42*]
 
 #let solution = solution.with(supplement: [*Solution: *])
 
+#let body = [
+  $ (x + 6)(x + 1) #marks.a $
+  #lorem(20)
+]
+
 #qna-wrapper(
-  config: (:),
+  config: (
+    solution: (
+      container: (func, args, items) => {
+        func(
+          ..args + (columns: (3fr, 1fr)),
+          items.values().join(),
+          context [
+            #let ms = query(metadata).filter(m => component-type(m.value) == spec.mark.name)
+            #ms.first().value.mark
+          ],
+        )
+      },
+    ),
+  ),
 
   [some preface],
   question(
-    [some question $ a x + b y + c z = d. $],
+    [factorize $x^2 - 5x - 6$.],
     solution(
-      [some solution],
-      solution(solution[...inside a solution])[and a solution inside a solution],
-      solution(target: none)[yet another solution inside a solution, but forced to have no target by
-        ```typc
-        target: none
-        ```
+      [
+        #body
       ],
+
+      solution(solution[...inside a solution])[and a solution inside a solution],
     ),
 
     question(
@@ -34,6 +50,12 @@
         target: <qs:1-a>,
         target-display: [guess who's not solved? you!],
         label: "you",
+
+        solution(target: none)[yet another solution inside a solution, but forced to have no target by
+          ```typc
+          target: none
+          ```
+        ],
       )[some solution to a sub-question, ref it by `@sn:you`: @sn:you],
 
       question[yet another @qs:1-a-i],
@@ -61,7 +83,7 @@
   question(
     label: <wut>,
     [some question],
-    solution(target: <qs:1>)[some solution. I also ref @qs:1-a and @wut],
+    solution(target: <qs:1>)[some solution. I also ref @qs:1-a and @wut[wut]],
   ),
 )
 

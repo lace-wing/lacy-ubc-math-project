@@ -1,4 +1,4 @@
-#let try-dictionary(data) = {
+#let try-dict(data) = {
   let t = type(data)
   if t == dictionary {
     return data
@@ -7,7 +7,10 @@
     return dictionary(data)
   }
   if t == function {
-    return try-dictionary(t())
+    return try-dict(t())
+  }
+  if t == arguments {
+    return data.named()
   }
   panic("Cannot convert a " + t + " to a dictionary!")
 }
@@ -27,6 +30,10 @@
       ))
 )
 
-#let merge-configs(..conf) = merge-dicts(..conf.pos().map(c => try-dictionary(c).at("config", default: (:))))
+#let merge-configs(..conf) = merge-dicts(
+  ..conf
+    .pos()
+    .map(c => if type(c) == module { try-dict(c).at("config", default: (:)) } else { try-dict(c) }),
+)
 
 

@@ -1,6 +1,6 @@
-#import "spec.typ": spec
+#import "spec.typ": spec, spell
 
-// #let config =
+//REGION: author
 
 #let author(firstname, lastname, id, strname: none) = (..args) => {
   let argp = args.pos()
@@ -25,15 +25,7 @@
   )
 }
 
-/// Cast a magic of lacy dict.
-///
-/// - impl (dictionary): Implementation of component identifiers.
-/// - type (str): Type of the component.
-///
-/// -> dictionary
-#let spell(type, ..args) = {
-  return (magic: spec.magic, class: spec.class, type: type, ..args.named())
-}
+//REGION: util
 
 #let component-type(comp) = {
   if type(comp) == dictionary {
@@ -175,9 +167,13 @@
   return (false, none)
 }
 
+//REGION: flat
+
 #let flat-visualizer(flat, config: (:)) = {
   flat
 }
+
+//REGION: feeder
 
 /// A function and its arguments that will be run, but if an argument is a component, it will be first visualized, then fed to the function.
 ///
@@ -202,6 +198,8 @@
   [#(tak.proc)(..tak.components)]
 }
 
+//REGION: question
+
 #let question(point: auto, point-display: auto, label: auto, ..args) = {
   assert(type(point) in (int, decimal) or point == auto)
 
@@ -220,12 +218,17 @@
   [
     #figure(
       kind: spec.question.kind,
-      supplement: spec.question.supplement,
-      numbering: _ => qsn.id.enumerate().map(((x, i)) => numbering(config.question.numbering.at(x), i)).join(),
+      // makes numbering into supplement, so refs can completely replace the text
+      supplement: _ => (
+        spec.question.supplement
+          + " "
+          + qsn.id.enumerate().map(((x, i)) => numbering(config.question.numbering.at(x), i)).join()
+      ),
+      numbering: _ => none,
 
       (config.question.container)(
         grid,
-        arguments(
+        (
           inset: (
             (x: .3em, y: .65em),
             .65em,
@@ -233,16 +236,21 @@
           columns: (1.65em, 1fr),
           align: (right, left),
         ),
-        numbering(
-          config.question.numbering.at(qsn.id.len() - 1),
-          qsn.id.last(),
+        (
+          number: numbering(
+            config.question.numbering.at(qsn.id.len() - 1),
+            qsn.id.last(),
+          ),
+          point: point-visualizer(qsn.point, qsn.point-display),
+          main: qsn.components.join(),
         ),
-        point-visualizer(qsn.point, qsn.point-display) + qsn.components.join(),
       ),
     )
     #qsn.label
   ]
 }
+
+//REGION: solution
 
 #let solution(
   supplement: none,
@@ -270,33 +278,34 @@
   [
     #figure(
       kind: spec.solution.kind,
-      supplement: spec.solution.supplement,
-      numbering: _ => {
-        show linebreak: none
-        if sol.target != none {
-          [to #ref(sol.target)]
-        } else {
-          // remove the space between supplement and numbering
-          h(-.3em)
-        }
-      },
+      // makes numbering into supplement, so refs can completely replace the text
+      supplement: _ => (
+        spec.solution.supplement
+          + if sol.target != none {
+            [ to #ref(sol.target)]
+          }
+      ),
+      numbering: _ => none,
       (config.solution.container)(
         grid,
-        arguments(
+        (
           stroke: green + .1pt,
           inset: .65em,
           columns: 1fr,
           align: left,
         ),
-        [
-          #target-visualizer(sol.target, sol.target-display)#sol.supplement#sol.components.join()
-          //TODO: markscheme grid
-        ],
+        (
+          target: target-visualizer(sol.target, sol.target-display),
+          supplement: sol.supplement,
+          main: sol.components.join(),
+        ),
       ),
     )
     #sol.label
   ]
 }
+
+//REGION: grower
 
 #let branch-grower(branch, parent, qs-count, components-grower, config: (:)) = {
   let btype = component-type(branch)
@@ -377,6 +386,8 @@
   )
 }
 
+//REGION: visualizer
+
 #let visualize-branches(branches, config: (:)) = {
   branches.map(branch => {
     let btype = component-type(branch)
@@ -400,6 +411,40 @@
     }
   })
 }
+
+//REGION: markscheme
+
+#let marks = (
+  "method",
+  "accuracy",
+  "correct",
+  "reasoning",
+  "follow-through",
+  "no-attempt",
+)
+
+#let embed-mark(mark) = {
+  metadata(
+    spell(
+      spec.mark.name,
+      mark: mark,
+    ),
+  )
+}
+
+#(
+  marks = marks
+    .map(k => {
+      let ak = k.split("-").map(s => s.clusters().first()).reduce((a, i) => if i == none { a } else { a + i })
+      let v = embed-mark(k)
+      ((k): v, (ak): v)
+    })
+    .join()
+)
+
+#let extract-mark() = none
+
+//REGION: wrapper
 
 #let qna-wrapper(..branches, config: (:)) = {
   import "loader.typ": merge-configs
