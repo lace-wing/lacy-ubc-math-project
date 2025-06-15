@@ -6,26 +6,22 @@
   author("Jane", "Doe", 12345678),
 )
 
-#show "42": [*42*]
+
+#import "@preview/pinit:0.2.2": *
 
 #let solution = solution.with(supplement: [*Solution: *])
 
-#let body = [
-  $ (x + 6)(x + 1) #marks.a $
-  #lorem(20)
-]
+// #context query(mark-label).map(m => m.location().position())
 
 #qna-wrapper(
   config: (
     solution: (
       container: (func, args, items) => {
+        let (target, supplement, main, marking) = items
         func(
-          ..args + (columns: (3fr, 1fr)),
-          items.values().join(),
-          context [
-            #let ms = query(metadata).filter(m => component-type(m.value) == spec.mark.name)
-            #ms.first().value.mark
-          ],
+          ..args + (columns: (2fr, 1fr)),
+          target + supplement + main,
+          marking,
         )
       },
     ),
@@ -36,10 +32,20 @@
     [factorize $x^2 - 5x - 6$.],
     solution(
       [
-        #body
+        #marks.a
+        #lorem(10)
+        $
+          (x + 6)#marks.a \
+          (x + 1)
+        $
+        #marks.a
+        #lorem(20)
       ],
 
-      solution(solution[...inside a solution])[and a solution inside a solution],
+      solution(
+        [and a solution inside a solution],
+        solution[...inside a solution],
+      ),
     ),
 
     question(

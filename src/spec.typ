@@ -5,6 +5,7 @@
     "solution",
     "feeder",
     "mark",
+    "pin",
   ),
 )
 
@@ -24,6 +25,7 @@
   mark: (
     label-head: "mk:",
   ),
+  pin: (:)
 )
 
 #for comp in impl.components {
