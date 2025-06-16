@@ -6,7 +6,7 @@
 #import "loader.typ"
 
 #import "components.typ"
-#import components: author, question, solution, feeder
+#import components: author, question, solution, feeder, qna-wrapper as qna
 #import "markscheme.typ"
 #import "shorthand.typ": *
 #import "drawing.typ"
@@ -86,7 +86,7 @@
   #show link: link_s
 
   #show: super-T-as-transpose // Render "..^T" as transposed matrix
-  #show: equate.with(breakable: true, sub-numbering: true)
+  #show: equate.with(breakable: true, sub-numbering: true, number-mode: "label")
   #set math.equation(numbering: "(1.1)")
 
   #show: components.qna-breakable-rule

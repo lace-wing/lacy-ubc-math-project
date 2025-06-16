@@ -1,4 +1,5 @@
 #import "spec.typ": spec, spell, component-type
+#import "loader.typ": merge-configs
 #import "markscheme.typ"
 
 //REGION: author
@@ -172,13 +173,18 @@
 /// - proc (function): A function to be run with visualized components.
 /// - args (arguments): Arguments for `proc`, components within will be first visualized when visualizing the feeder.
 /// -> dictionary
-#let feeder(proc, ..args) = {
+#let feeder(
+  proc,
+  config: (:),
+  ..args,
+) = {
   assert(type(proc) == function, message: "`proc` must be a function.")
 
   spell(
     spec.feeder.name,
     proc: proc.with(..args.named()),
     components: args.pos(),
+    config: config,
   )
 }
 
@@ -186,13 +192,19 @@
 ///
 /// - feeder (dictionary): The `feeder` to visualize.
 /// -> content
-#let feeder-visualizer(tak) = {
+#let feeder-visualizer(tak, config: (:)) = {
   [#(tak.proc)(..tak.components)]
 }
 
 //REGION: question
 
-#let question(point: auto, point-display: auto, label: auto, ..args) = {
+#let question(
+  point: auto,
+  point-display: auto,
+  label: auto,
+  config: (:),
+  ..args,
+) = {
   assert(type(point) in (int, decimal) or point == auto)
 
   spell(
@@ -202,23 +214,29 @@
     id: auto,
     label: label,
     components: args.pos(),
+    config: config,
     ..args.named(),
   )
 }
 
 #let question-visualizer(qsn, config: (:)) = {
+  config = merge-configs(config, qsn.config)
   [
-    #figure(
-      kind: spec.question.kind,
-      // makes numbering into supplement, so refs can completely replace the text
-      supplement: _ => (
-        spec.question.supplement
-          + " "
-          + qsn.id.enumerate().map(((x, i)) => numbering(config.question.numbering.at(x), i)).join()
-      ),
-      numbering: _ => none,
+    #show: config.question.rule
 
-      (config.question.container)(
+    #block[
+      #figure(
+        kind: spec.question.kind,
+        // makes numbering into supplement, so refs can completely replace the text
+        supplement: _ => (
+          spec.question.supplement
+            + " "
+            + qsn.id.enumerate().map(((x, i)) => numbering(config.question.numbering.at(x), i)).join()
+        ),
+        numbering: _ => h(-.65em),
+      )[]
+      #qsn.label
+      #(config.question.container)(
         grid,
         (
           inset: (
@@ -236,9 +254,8 @@
           point: point-visualizer(qsn.point, qsn.point-display),
           main: qsn.components.join(),
         ),
-      ),
-    )
-    #qsn.label
+      )
+    ]
   ]
 }
 
@@ -252,6 +269,7 @@
   target: auto,
   target-display: auto,
   label: none,
+  config: (:),
   ..args,
 ) = {
   spell(
@@ -261,30 +279,37 @@
     target-display: target-display,
     label: label,
     components: args.pos(),
+    config: config,
     ..args.named(),
   )
 }
 
 #let solution-visualizer(sol, config: (:)) = {
+  config = merge-configs(config, sol.config)
   solution-counter.step()
   context [
     // make sure all the grids in this figure use the same uid
     #let uid = solution-counter.get().first()
 
-    #figure(
-      kind: spec.solution.kind,
-      // makes numbering into supplement, so refs can completely replace the text
-      supplement: _ => (
-        spec.solution.supplement
-          + if sol.target != none {
-            [ to #ref(sol.target)]
-          }
-      ),
-      numbering: _ => none,
-      (config.solution.container)(
+    #show: config.solution.rule
+
+    #block[
+      #figure(
+        kind: spec.solution.kind,
+        // makes numbering into supplement, so refs can completely replace the text
+        supplement: _ => (
+          spec.solution.supplement
+            + if sol.target != none {
+              [ to #ref(sol.target)]
+            }
+        ),
+        numbering: _ => h(-.65em),
+      )[]
+      #sol.label
+      #(config.solution.container)(
         grid,
         (
-          stroke: green + .1pt,
+          stroke: config.colors.solution.major + .5pt,
           inset: .65em,
           columns: 1fr,
           align: left,
@@ -295,9 +320,8 @@
           main: sol.components.join(),
           marking: markscheme.marking-grid(uid),
         ),
-      ),
-    )
-    #sol.label
+      )
+    ]
   ]
 }
 
@@ -309,46 +333,50 @@
 
   if btype == spec.flat.name {
     // flat: no action
-  } else if btype == spec.question.name {
-    // question:
-    // - assign ID
-    branch.id = parent.id + (qs-count,)
-    // - assign label
-    if branch.label == auto {
-      branch.label = question-labeller(branch.id, config: config)
-    } else if type(branch.label) == str {
-      branch.label = label(spec.question.label-head + branch.label)
-    }
-    // - grow components
-    (branch.components, pt, _) = components-grower(branch.components, qsn-info(branch))
-    // - collect points
-    if branch.point == auto {
-      branch.point = pt
-    }
-  } else if btype == spec.solution.name {
-    // solution:
-    // - assign label
-    if type(branch.label) == str {
-      branch.label = label(spec.solution.label-head + branch.label)
-    }
-    // - set target to parent question
-    if branch.target == auto {
-      branch.target = parent.label
-    }
-    // update target-display
-    if branch.target-display == auto {
-      if branch.target == parent.label {
-        branch.target-display = none
-      }
-    }
-    // - grow components
-    (branch.components, _, _) = components-grower(branch.components, parent)
-  } else if btype == spec.feeder.name {
-    // feeder:
-    // - ignore the feed and continue to its components
-    (branch.components, _, qs-count) = components-grower(branch.components, parent, qs-count: qs-count)
   } else {
-    panic("Unknown component type `" + btype + "`!")
+    config = merge-configs(config, branch.config)
+
+    if btype == spec.question.name {
+      // question:
+      // - assign ID
+      branch.id = parent.id + (qs-count,)
+      // - assign label
+      if branch.label == auto {
+        branch.label = question-labeller(branch.id, config: config)
+      } else if type(branch.label) == str {
+        branch.label = label(spec.question.label-head + branch.label)
+      }
+      // - grow components
+      (branch.components, pt, _) = components-grower(branch.components, qsn-info(branch))
+      // - collect points
+      if branch.point == auto {
+        branch.point = pt
+      }
+    } else if btype == spec.solution.name {
+      // solution:
+      // - assign label
+      if type(branch.label) == str {
+        branch.label = label(spec.solution.label-head + branch.label)
+      }
+      // - set target to parent question
+      if branch.target == auto {
+        branch.target = parent.label
+      }
+      // update target-display
+      if branch.target-display == auto {
+        if branch.target == parent.label {
+          branch.target-display = none
+        }
+      }
+      // - grow components
+      (branch.components, _, _) = components-grower(branch.components, parent)
+    } else if btype == spec.feeder.name {
+      // feeder:
+      // - ignore the feed and continue to its components
+      (branch.components, _, qs-count) = components-grower(branch.components, parent, qs-count: qs-count)
+    } else {
+      panic("Unknown component type `" + btype + "`!")
+    }
   }
 
   // finally return the branch
@@ -391,6 +419,8 @@
     if btype == spec.flat.name {
       flat-visualizer(branch, config: config)
     } else {
+      let config = merge-configs(config, branch.config)
+
       // first, visualize its components
       branch.components = visualize-branches(branch.components, config: config)
 
@@ -400,7 +430,7 @@
       } else if btype == spec.solution.name {
         solution-visualizer(branch, config: config)
       } else if btype == spec.feeder.name {
-        feeder-visualizer(branch)
+        feeder-visualizer(branch, config: config)
       } else {
         panic("Unknown componemnt type `" + btype + "`!")
       }
@@ -411,7 +441,6 @@
 //REGION: wrapper
 
 #let qna-wrapper(..branches, config: (:)) = {
-  import "loader.typ": merge-configs
   import "defaults.typ"
   config = merge-configs(defaults, config)
 
@@ -427,17 +456,13 @@
 
 #let qna-breakable-rule(body) = {
   show figure: it => if it.kind in ("question", "solution").map(e => spec.at(e).kind) {
-    block(
-      breakable: true,
-      sticky: false,
-      it,
-    )
+    none
   } else {
     it
   }
 
-  show grid: block.with(breakable: true, sticky: false)
-  set grid.cell(breakable: true)
+  // show grid: block.with(breakable: true, sticky: false)
+  // set grid.cell(breakable: true)
 
   body
 }

@@ -3,7 +3,7 @@
 #import "config.typ"
 #show: setup.with(
   project: "test proj",
-  author("Jane", "Doe", 12345678),
+  // author("Jane", "Doe", 12345678),
 )
 
 // #let solution = solution.with(supplement: [*Solution: *])
@@ -75,6 +75,14 @@
   ),
   [some mayonnaise],
   feeder(
+    config: (
+      solution: (
+        rule: body => {
+          set text(red)
+          body
+        },
+      ),
+    ),
     table,
     columns: (1fr,) * 2,
     table.header([This], [That]),
