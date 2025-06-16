@@ -5,7 +5,6 @@
     "solution",
     "feeder",
     "mark",
-    "pin",
   ),
 )
 
@@ -25,7 +24,6 @@
   mark: (
     label-head: "mk:",
   ),
-  pin: (:)
 )
 
 #for comp in impl.components {
@@ -43,4 +41,12 @@
   return (magic: spec.magic, class: spec.class, type: type, ..args.named())
 }
 
+#let component-type(comp) = {
+  if type(comp) == dictionary {
+    if comp.at("magic", default: none) == spec.magic and comp.at("class", default: none) == spec.class {
+      return comp.type
+    }
+  }
+  return spec.flat.name
+}
 

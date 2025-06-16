@@ -17,11 +17,17 @@
   func,
   args,
   items,
+  markscheme: false,
 ) = {
-  let (target, supplement, main) = items
+  let (target, supplement, main, marking) = items
+  let bodies = (target + supplement + main,)
+  if markscheme {
+    args += (columns: (3fr, 1fr))
+    bodies += (marking,)
+  }
   func(
     ..args,
-    target + supplement + main,
+    ..bodies,
   )
 }
 

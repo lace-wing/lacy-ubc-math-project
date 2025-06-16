@@ -1,4 +1,5 @@
-#import "spec.typ": spec, spell
+#import "spec.typ": spec, spell, component-type
+#import "markscheme.typ"
 
 //REGION: author
 
@@ -26,15 +27,6 @@
 }
 
 //REGION: util
-
-#let component-type(comp) = {
-  if type(comp) == dictionary {
-    if comp.at("magic", default: none) == spec.magic and comp.at("class", default: none) == spec.class {
-      return comp.type
-    }
-  }
-  return spec.flat.name
-}
 
 #let qsn-info(..args) = {
   args = args.pos()
@@ -167,56 +159,6 @@
   return (false, none)
 }
 
-//REGION: markscheme
-
-// unique solution count, used for markscheme
-#let solution-counter = counter(spec.solution.name)
-
-#let embed-pin(num) = {
-  place(circle(stroke: .1pt + blue, radius: 1pt))
-  metadata(
-    spell(
-      spec.pin.name,
-      pin: num,
-    ),
-  )
-}
-
-#let marks = (
-  "method",
-  "accuracy",
-  "correct",
-  "reasoning",
-  "follow-through",
-  "no-attempt",
-)
-
-#let mark-label = label(spec.mark.label-head + "embed")
-
-#let embed-mark(mark, pin) = [
-  // #place(circle(stroke: .1pt + red, radius: 1pt))
-  #[]#mark-label //TODO: fix it
-  #metadata(
-    spell(
-      spec.mark.name,
-      mark: mark,
-      pin: pin,
-    ),
-  )
-]
-
-#(
-  marks = marks
-    .map(k => {
-      let ak = k.split("-").map(s => s.clusters().first()).reduce((a, i) => if i == none { a } else { a + i })
-      let v = context embed-mark(k, solution-counter.get().first())
-      ((k): v, (ak): v)
-    })
-    .join()
-)
-
-#let extract-mark() = none
-
 //REGION: flat
 
 #let flat-visualizer(flat, config: (:)) = {
@@ -244,7 +186,7 @@
 ///
 /// - feeder (dictionary): The `feeder` to visualize.
 /// -> content
-#let feeder-visualizer(tak, config: (:)) = {
+#let feeder-visualizer(tak) = {
   [#(tak.proc)(..tak.components)]
 }
 
@@ -302,6 +244,9 @@
 
 //REGION: solution
 
+// unique solution count, used for markscheme
+#let solution-counter = counter(spec.solution.name)
+
 #let solution(
   supplement: none,
   target: auto,
@@ -348,37 +293,7 @@
           target: target-visualizer(sol.target, sol.target-display),
           supplement: sol.supplement,
           main: sol.components.join(),
-          marking: {
-            embed-pin(uid)
-            context {
-              let metas = query(metadata)
-              let ms = metas.filter(m => component-type(m.value) == spec.mark.name and m.value.pin == uid)
-              if ms == () { return none }
-
-              let mspos = ms.map(m => query(selector(mark-label).before(m.location())).last().location().position())
-              let ppos = metas
-                .find(m => component-type(m.value) == spec.pin.name and m.value.pin == uid)
-                .location()
-                .position()
-
-              grid(
-                stroke: .1pt,
-                columns: (1fr,),
-                rows: for (i, mpos) in mspos.enumerate() {
-                  // first row: all the way till mpos.y
-                  if i == 0 {
-                    (mpos.y - ppos.y,)
-                  } else {
-                    // cur pos - prev pos
-                    (mpos.y - mspos.at(i - 1).y,)
-                  }
-                }
-                  + (auto,),
-                [],
-                ..ms.map(m => m.value.mark)
-              )
-            }
-          },
+          marking: markscheme.marking-grid(uid),
         ),
       ),
     )
@@ -485,7 +400,7 @@
       } else if btype == spec.solution.name {
         solution-visualizer(branch, config: config)
       } else if btype == spec.feeder.name {
-        feeder-visualizer(branch, config: config)
+        feeder-visualizer(branch)
       } else {
         panic("Unknown componemnt type `" + btype + "`!")
       }
@@ -508,4 +423,21 @@
     ).first(),
     config: config,
   ).join()
+}
+
+#let qna-breakable-rule(body) = {
+  show figure: it => if it.kind in ("question", "solution").map(e => spec.at(e).kind) {
+    block(
+      breakable: true,
+      sticky: false,
+      it,
+    )
+  } else {
+    it
+  }
+
+  show grid: block.with(breakable: true, sticky: false)
+  set grid.cell(breakable: true)
+
+  body
 }

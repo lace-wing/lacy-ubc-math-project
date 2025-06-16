@@ -6,8 +6,8 @@
 #import "loader.typ"
 
 #import "components.typ"
-#import components: question, solution, feeder
-#import "components.typ": author, question, solution
+#import components: author, question, solution, feeder
+#import "markscheme.typ"
 #import "shorthand.typ": *
 #import "drawing.typ"
 
@@ -36,12 +36,10 @@
   ..authors,
   body,
 ) = [
-  #{
-    if type(config) != array {
-      config = (config,)
-    }
-    config = loader.merge-configs(defaults, ..config)
+  #if type(config) != array {
+    config = (config,)
   }
+  #(config = loader.merge-configs(defaults, ..config))
 
   #let authors = authors.pos().map(a => if type(a) == function { a() } else { a })
 
@@ -90,6 +88,8 @@
   #show: super-T-as-transpose // Render "..^T" as transposed matrix
   #show: equate.with(breakable: true, sub-numbering: true)
   #set math.equation(numbering: "(1.1)")
+
+  #show: components.qna-breakable-rule
 
   #[
     #set align(center)

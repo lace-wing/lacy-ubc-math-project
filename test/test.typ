@@ -6,45 +6,46 @@
   author("Jane", "Doe", 12345678),
 )
 
+// #let solution = solution.with(supplement: [*Solution: *])
 
-#import "@preview/pinit:0.2.2": *
-
-#let solution = solution.with(supplement: [*Solution: *])
-
-// #context query(mark-label).map(m => m.location().position())
+#import markscheme as m: markbox
 
 #qna-wrapper(
   config: (
     solution: (
-      container: (func, args, items) => {
-        let (target, supplement, main, marking) = items
-        func(
-          ..args + (columns: (2fr, 1fr)),
-          target + supplement + main,
-          marking,
-        )
-      },
+      container: defaults.solution-container.with(markscheme: true),
     ),
   ),
-
   [some preface],
   question(
     [factorize $x^2 - 5x - 6$.],
     solution(
       [
-        #marks.a
-        #lorem(10)
+        #markbox(lorem(5), m.m(1))
+
         $
-          (x + 6)#marks.a \
-          (x + 1)
+          markbox(
+            (x + 6)(x + 1),
+            #m.a(1), #m.a(0)
+          )
         $
-        #marks.a
-        #lorem(20)
+        #markbox($ m^2 a_3 log(t) va(h) $, m.c(0))
+        #markbox(lorem(24), m.a(1), m.ft(lorem(6)))
+        #markbox(lorem(20), m.na[bunch-o-nonsense])
       ],
 
       solution(
-        [and a solution inside a solution],
-        solution[...inside a solution],
+        [
+          $
+            markbox(
+              (x + 6)(x + 1),
+              #m.a(1), #m.a(0)
+            )
+          $
+          and a solution inside a solution],
+        solution[
+          #markbox($ m^2 a_3 log(t) va(h) $, m.c(0))
+        ],
       ),
     ),
 
