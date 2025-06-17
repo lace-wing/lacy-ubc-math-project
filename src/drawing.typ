@@ -1,5 +1,5 @@
-#import "@preview/cetz:0.3.1"
-#import "@preview/cetz-plot:0.1.0"
+#import "@preview/cetz:0.4.0"
+#import "@preview/cetz-plot:0.1.2"
 
 /// Get the 2D coordinates in form of (x: i, y: j).
 /// - coord (array, dictionary): The coordinates, must be 2-elements long.

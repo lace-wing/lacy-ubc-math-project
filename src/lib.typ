@@ -32,15 +32,9 @@
   number: none,
   flavor: none,
   group: none,
-  config: (),
   ..authors,
   body,
 ) = [
-  #if type(config) != array {
-    config = (config,)
-  }
-  #(config = loader.merge-configs(defaults, ..config))
-
   #let authors = authors.pos().map(a => if type(a) == function { a() } else { a })
 
   #let title = {
