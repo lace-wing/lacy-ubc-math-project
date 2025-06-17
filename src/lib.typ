@@ -2,7 +2,7 @@
 #import "@preview/unify:0.7.1": *
 #import "@preview/equate:0.2.1": *
 
-#import "defaults.typ"
+#import "defaults.typ": config as defaults
 #import "loader.typ"
 
 #import "components.typ"
@@ -25,8 +25,10 @@
 /// - number (int, float, version, none): The number of the project.
 /// - flavor (str, content, none): The flavor of the project.
 /// - group (str, content, none): The group name.
-/// - authors (array): The authors of the project, use `author()` to fill it.
+/// - authors (arguments): The authors of the project, use `author()` to fill it.
 /// - body (block): The content of the document.
+///
+/// -> content
 #let setup(
   project: "Group Project",
   number: none,
@@ -50,8 +52,8 @@
   #set document(
     title: title,
     author: authors.map(a => {
-      if type(a.strname) == str {
-        return a.strname
+      if type(a.ascii) == str {
+        return a.ascii
       }
       if type(a.name.first) == content {
         if "text" in a.name.first.fields() {
@@ -83,7 +85,8 @@
   #show: equate.with(breakable: true, sub-numbering: true, number-mode: "label")
   #set math.equation(numbering: "(1.1)")
 
-  #show: components.qna-breakable-rule
+  // show question and solution figures as none
+  #show: components.qns-nullifier
 
   #[
     #set align(center)
@@ -97,7 +100,7 @@
           stack(
             dir: ttb,
             spacing: 0.65em,
-            [#a.name.first *#a.name.last* #if a.suffix != none { a.suffix }],
+            [#a.name.first *#a.name.last* #a.suffix],
             {
               if type(a.id) == int {
                 raw(str(a.id))

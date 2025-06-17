@@ -22,8 +22,8 @@
   let (target, supplement, main, marking) = items
   let bodies = (target + supplement + main,)
   if markscheme {
-    args += (columns: (auto, 5.4em))
-    bodies += (marking,)
+    args += (columns: (100% - 7.2em, 7.2em))
+    bodies += (marking(),)
   }
   func(
     ..args,
@@ -32,19 +32,9 @@
 }
 
 #let config = (
-  // group: (
-  //   name: [Group Name],
-  //   authors: (
-  //     jane-doe: author("Jane", "Doe", 31415926),
-  //     alex-conquitlam: author(
-  //       "Alex",
-  //       "k\u{02b7}ik\u{02b7}\u{0259}\u{019b}\u{0313}",
-  //       27182818,
-  //       strname: "Alex Coquitlam",
-  //     ),
-  //   ),
-  // ),
   colors: (
+    foreground: black,
+    background: white,
     solution: (
       major: rgb(10%, 40%, 10%),
     ),

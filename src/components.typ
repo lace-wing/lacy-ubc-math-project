@@ -4,7 +4,23 @@
 
 //REGION: author
 
-#let author(firstname, lastname, id, strname: none) = (..args) => {
+/// Construct a callable author entry.
+/// Returns a `function`, which:
+/// - is intended to be supplied to this template's functions, where asked. Other packages/templates likely do not respect its usage;
+/// - can be left uncalled, i.e. not appending "()" or "[]" to it;
+/// - can be called with a suffix, e.g. `returned-func[suffix content]`.
+/// See more of its usage in documentation of the `setup()` function.
+///
+/// - firstname (str, content): The first name.
+///   [WARN] If `content` is given, make sure Typst can convert it to `str`, or also provide an `ascii`; else in the author metadata it will show as "`<unsupported>`"
+/// - lastname (str, content): The last name, i.e. surname.
+///   [WARN] If `content` is given, make sure Typst can convert it to `str`, or also provide an `ascii`; else in the author metadata it will show as "`<unsupported>`"
+/// - id (int, str, content): An ID, perhaps a student number.
+///  Will be wrapped in `raw()`, displaying with "code" style.
+///  If Typst cannot convert it to `str`, the above will not apply.
+/// - ascii (str, none): A string, which is the Ascii representation of the *full* name.
+/// -> function
+#let author(firstname, lastname, id, ascii: none) = (..args) => {
   let argp = args.pos()
   let argn = args.named()
 
@@ -15,7 +31,7 @@
         last: lastname,
       ),
       id: id,
-      strname: strname,
+      ascii: ascii,
     )
       + if "suffix" in argn {
         (suffix: argn.suffix)
@@ -28,6 +44,12 @@
 }
 
 //REGION: util
+
+/// Produce `line` number of empty line(s) using `linebreak`, or an empty block till the end of the current container when `line < 0`.
+///
+/// - lines (int): The number of empty lines to produce. A number less than 0 means all the way to the end of container instead.
+/// -> content
+#let spacer(lines) = if lines > -1 { linebreak() * lines } else { v(1fr) }
 
 #let qsn-info(..args) = {
   args = args.pos()
@@ -50,6 +72,12 @@
   )
 }
 
+/// Produce a label based on a question ID.
+///
+/// - id (array): The question's ID, an array of integers.
+/// - head (str): The head of the label generated.
+/// - config (dictionary): The config containing question labelling information.
+/// -> label
 #let question-labeller(id, head: spec.question.label-head, config: (:)) = {
   if config == (:) { panic(config) }
   label(head + id.enumerate().map(((x, i)) => numbering(config.question.labelling.at(x), i)).join("-"))
@@ -82,6 +110,14 @@
   return [(#point points) ]
 }
 
+/// Visualize a question target, a `ref` or a `label` in general.
+///
+/// - target (label): The target question's label.
+/// - target-display (content, str, function, auto): The display guide/override for the target.
+///   - `auto` → a `ref()` to the target label, aligned right.
+///   - `function` → called with `target`, and whatever returned.
+///   - otherwise, whatever `target-display`, wrapped in a `link()` to `target`, aligned right.
+/// -> content
 #let target-visualizer(target, target-display) = {
   // if not to display, return none
   if none in (target, target-display) {
@@ -162,6 +198,11 @@
 
 //REGION: flat
 
+/// Visualize "flat" content: stuff not managed or processed by this template.
+///
+/// - flat (any): The content, anything.
+/// - config (dictionary): The config, does nothing for now.
+/// -> any
 #let flat-visualizer(flat, config: (:)) = {
   flat
 }
@@ -169,6 +210,7 @@
 //REGION: feeder
 
 /// A function and its arguments that will be run, but if an argument is a component, it will be first visualized, then fed to the function.
+/// - Visualize: This template's helper functions, e.g. `question` and `solution`, produce data that is intended to be visualized by wrapper functions, instead of being put to the document directly. Visualization is the process that such data is turned into display-ready content.
 ///
 /// - proc (function): A function to be run with visualized components.
 /// - args (arguments): Arguments for `proc`, components within will be first visualized when visualizing the feeder.
@@ -198,6 +240,23 @@
 
 //REGION: question
 
+/// Produce a question object.
+///
+/// - point (int, decimal, float, auto): The point the question is worth.
+///   Can be left `auto`:
+///   - if there are sub-questions in `args`, the sum of their `point`s becomes this `point`;
+///   - if there is no sub-question, it becomes 0.
+///   [WARN] For precision, `float` value is converted to `decimal` through `str`.
+/// - point-display (any, function, auto): The display guide/override for the point value.
+/// - label (str, label, auto): The label for the question.
+///   - `auto` → question is automatically labelled with its question number.
+///   - `str` → question is labelled with a label comprised of a identifying head, then this `label`.
+///   - otherwise, whatever `label`, but it should be a `label`.
+/// - config (dictionary): The config used in question processing.
+/// - args (arguments): The sub-elements of the question, and API reserve.
+///   - positional (like `value, value,`) → the question's sub-elements, can be anything, including `question` and `solution`.
+///   - named (like `name: value,`) → reserved for potential modding. Named `args` is added to the question object produced, and can be used by custom processors.
+/// -> dictionary
 #let question(
   point: auto,
   point-display: auto,
@@ -205,7 +264,9 @@
   config: (:),
   ..args,
 ) = {
-  assert(type(point) in (int, decimal) or point == auto)
+  if type(point) == float {
+    point = decimal(str(point))
+  }
 
   spell(
     spec.question.name,
@@ -318,7 +379,7 @@
           target: target-visualizer(sol.target, sol.target-display),
           supplement: sol.supplement,
           main: sol.components.join(),
-          marking: markscheme.marking-grid(uid),
+          marking: markscheme.marking-grid.with(uid),
         ),
       )
     ]
@@ -454,15 +515,12 @@
   ).join()
 }
 
-#let qna-breakable-rule(body) = {
+#let qns-nullifier(body) = {
   show figure: it => if it.kind in ("question", "solution").map(e => spec.at(e).kind) {
     none
   } else {
     it
   }
-
-  // show grid: block.with(breakable: true, sticky: false)
-  // set grid.cell(breakable: true)
 
   body
 }

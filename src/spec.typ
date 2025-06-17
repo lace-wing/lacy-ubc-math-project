@@ -5,6 +5,8 @@
     "solution",
     "feeder",
     "mark",
+    "marker",
+    "trace",
   ),
 )
 
@@ -24,6 +26,8 @@
   mark: (
     label-head: "mk:",
   ),
+  marker: (:),
+  trace: (:),
 )
 
 #for comp in impl.components {

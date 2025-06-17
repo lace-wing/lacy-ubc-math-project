@@ -1,18 +1,17 @@
 #import "@preview/lacy-ubc-math-project:0.2.0": *
+#import markscheme as m: markbox
 #import drawing: *
 
+#import "config.typ": *
+
 #show: setup.with(
-  number: 9,
-  group: "?????",
-  authors: (
-    author("???", "???", 114514),
-    author("???", "???", 114514),
-    author("???", "???", 114514),
-    author("???", "???", 114514),
-  ),
+  number: 3,
+  group: group-name,
+  jane-doe,
+  alex-conquitlam[(NP)]
 )
 
-#let solution = solution.with(supplement: text(defaults.config.colors.solution.major)[*Solution: *])
+#let solution = solution.with(supplement: text(defaults.colors.solution.major)[*Solution: *])
 
 #let rule = {
   v(0.2em)
@@ -63,18 +62,25 @@ At this point in the course, having written the first test and completed a pair 
   If this is true, give yourself 3 points. If it is true in all but one case, give yourself 1 point. Otherwise, give yourself 0 points.
 
 What is the average score of your team members? (Be honest with yourselves; no points will be awarded based on what this average score is.) In one or two paragraphs, describe at least two concrete steps you can take to help each other raise that score.
+
 #qna(
+  config: (
+    solution: (
+      container: defaults.solution.container.with(markscheme: true),
+    ),
+  ),
   solution[
-    Individual scores:
-    - ???
-    - ???
-    - ???
-    - ???
-    Average: ?
+    #markbox(m.c(2))[Individual scores:
+      - ???
+      - ???
+      - ???
+      - ???
+      Average: ?
+    ]
 
-    #lorem(122)
+    #markbox(lorem(122), m.c(3))
 
-    #lorem(98)
+    #markbox(lorem(98), m.c(4))
   ],
 )
 
@@ -82,15 +88,9 @@ What is the average score of your team members? (Be honest with yourselves; no p
 = Assignment questions
 
 #qna(
-  config: (
-    solution: (
-      :// container: defaults.solution-container.with(markscheme: true),
-    ),
-  ),
   question(
     [
       An elastic tube is being stretched so that its diameter grows while its length stays the same. Initially, its inner radius is 1cm and the thickness of the material making up the tube is 1 cm.
-
       #{
         set align(center)
         cetz.canvas({
@@ -147,13 +147,15 @@ What is the average score of your team members? (Be honest with yourselves; no p
 
       solution[
         Let volume be $V$,
-        $ V(t_0) &= pi ell [ ( d(t_0) / 2 + x(t_0) )^2 - ( d(t_0) / 2 )^2 ]. $
+        $
+          V(t_0) &= pi ell [ ( d(t_0) / 2 + x(t_0) )^2 - ( d(t_0) / 2 )^2 ].
+        $
         Differentiate $V$ in respect of $t$:
         $
-          V'(t_0) &= pi ell [ 2 ( d(t_0) / 2 + x(t_0) ) ( 1 / 2d'(t_0) - c / d(t_0)^2 d'(t_0) ) - 2( d(t_0) / 2 ) 1 / 2 d'(t) ] \
+          &#hide[\= ] V'(t_0) \ &= pi ell [ 2 ( d(t_0) / 2 + x(t_0) ) ( 1 / 2d'(t_0) - c / d(t_0)^2 d'(t_0) ) - 2( d(t_0) / 2 ) 1 / 2 d'(t) ] \
           &= 2pi ell [ ( d(t) / 2 + x(t) ) ( 1 / 2d'(t) - c / d(t)^2 d'(t) ) - d(t) / 2 dot 1 / 2 d'(t) ].
         $
-        $t$ = $t_0$, so $d(t) = 3, d'(t) = 2, x(t) = c / 3$, substitute them into the equation:
+        $t = t_0$, so $d(t) = 3, d'(t) = 2, x(t) = c / 3$, substitute them into the equation:
         $
           V'(t) &= 2pi ell [ ( 3 / 2 + c / 3 ) times ( 1 - (2c) / 9 ) - (3 / 2 times 2 / 2) ] \
           &= 2pi ell ( ( ( 9 + 2c) / 6 )times((9-2c) / 9)-3 / 2) \
@@ -199,7 +201,7 @@ What is the average score of your team members? (Be honest with yourselves; no p
               table(
                 columns: (25%,) * 2,
                 inset: .65em,
-                stroke: defaults.config.colors.solution.major,
+                stroke: .5pt + defaults.colors.solution.major,
                 align: center + horizon,
                 $d(t_0)$, $x(t_0)$,
                 $3$, $ c / 3 $,
@@ -264,7 +266,7 @@ What is the average score of your team members? (Be honest with yourselves; no p
         ],
 
         solution[
-          $ r = abs(40 - 5t) unit("cm") (0 lt.eq t lt.eq qty("16", "s")) $
+          $ r = abs(40 - 5t) unit("cm") space.med (0 lt.eq t lt.eq qty("16", "s")) $
         ],
       ),
 
