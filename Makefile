@@ -11,6 +11,10 @@ clean:
 	rm -f template/*.pdf
 	rm -f test/*.pdf
 
-repo: clean
+thumbnail:
+	typst compile --pages=1 template/project1.typ thumbnail.png
+
+repo: thumbnail clean
 	rm -rf ~/src/my-typst/lacy-ubc-math-project/*
 	cp -r * ~/src/my-typst/lacy-ubc-math-project/
+
