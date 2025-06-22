@@ -6,7 +6,7 @@
     "feeder",
     "mark",
     "marker",
-    "trace",
+    "pin",
   ),
 )
 
@@ -27,7 +27,7 @@
     label-head: "mk:",
   ),
   marker: (:),
-  trace: (:),
+  pin: (:),
 )
 
 #for comp in impl.components {

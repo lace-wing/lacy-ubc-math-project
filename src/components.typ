@@ -51,6 +51,13 @@
 /// -> content
 #let spacer(lines) = if lines > -1 { linebreak() * lines } else { v(1fr) }
 
+/// Produce a question information object.
+///
+/// - args (arguments): Information of the question.
+///   - `(none, ...)` → empty/null question info;
+///   - `(question, ...)` → `id` and `label` of the question;
+///   - `(id, label)` → `id` and `label`.
+/// -> dictionary
 #let qsn-info(..args) = {
   args = args.pos()
   let fst = args.first()
@@ -209,7 +216,8 @@
 
 //REGION: feeder
 
-/// A function and its arguments that will be run, but if an argument is a component, it will be first visualized, then fed to the function.
+/// Produce a feeder object.
+/// A function, `proc`, and its arguments that will be run, but if an argument is a component, it will be first visualized, then fed to `proc`.
 /// - Visualize: This template's helper functions, e.g. `question` and `solution`, produce data that is intended to be visualized by wrapper functions, instead of being put to the document directly. Visualization is the process that such data is turned into display-ready content.
 ///
 /// - proc (function): A function to be run with visualized components.
@@ -280,6 +288,12 @@
   )
 }
 
+/// Visualize a question.
+///
+/// - qsn (dictionary): The question to be visualized.
+/// - config (dictionary, module): The config, containing question visualization information. This config is supposed to be passed down from the recursive visualization call.
+///   [WARN] Only the `config` field is extracted from `module`, if provided.
+/// -> content
 #let question-visualizer(qsn, config: (:)) = {
   config = merge-configs(config, qsn.config)
   [
@@ -294,7 +308,7 @@
             + " "
             + qsn.id.enumerate().map(((x, i)) => numbering(config.question.numbering.at(x), i)).join()
         ),
-        numbering: _ => h(-.65em),
+        numbering: _ => h(-.3em),
       )[]
       #qsn.label
       #(config.question.container)(
@@ -322,9 +336,23 @@
 
 //REGION: solution
 
-// unique solution count, used for markscheme
-#let solution-counter = counter(spec.solution.name)
+/// unique solution count, used for markscheme
+#let solution-counter = counter(spec.solution.kind)
 
+/// Produce a solution object.
+///
+/// - supplement (content, str, none): The supplement to be displayed at the start of solution content, like "Solution: ".
+/// - target (label, auto): The question this solution is for. It will be set to the question of lowest level containing this solution, even if with other non-question components in the middle.
+/// - target-display (content, str, function, auto): The display guide/override for the target.
+///   - `auto` → a `ref()` to the target label, aligned right.
+///   - `function` → called with `target`, and whatever returned.
+///   - otherwise, whatever `target-display`, wrapped in a `link()` to `target`, aligned right.
+/// - label (str, label, none): The label of the solution. If it is a `str`, a specific head, like "sn:" will be automatically prepended, then form a label.
+/// - config (dictionary): The config used in solution processing.
+/// - args (arguments): The sub-elements of the solution, and API reserve.
+///   - positional (like `value, value,`) → the solution's sub-elements, can be anything, including `question` and `solution`.
+///   - named (like `name: value,`) → reserved for potential modding. Named `args` is added to the question object produced, and can be used by custom processors.
+/// -> dictionary
 #let solution(
   supplement: none,
   target: auto,
@@ -345,14 +373,20 @@
   )
 }
 
+/// Visualize a solution.
+///
+/// - sol (dictionary): The solution to be visualized.
+/// - config (dictionary, module): The config, containing solution visualization information. This config is supposed to be passed down from the recursive visualization call.
+///   [WARN] Only the `config` field is extracted from `module`, if provided.
+/// -> content
 #let solution-visualizer(sol, config: (:)) = {
-  config = merge-configs(config, sol.config)
+  let conf = merge-configs(config, sol.config)
   solution-counter.step()
   context [
     // make sure all the grids in this figure use the same uid
     #let uid = solution-counter.get().first()
 
-    #show: config.solution.rule
+    #show: conf.solution.rule
 
     #block[
       #figure(
@@ -364,13 +398,13 @@
               [ to #ref(sol.target)]
             }
         ),
-        numbering: _ => h(-.65em),
+        numbering: _ => h(-.3em),
       )[]
       #sol.label
-      #(config.solution.container)(
+      #(conf.solution.container)(
         grid,
         (
-          stroke: config.colors.solution.major + .5pt,
+          stroke: conf.colors.solution.major + .5pt,
           inset: .65em,
           columns: 1fr,
           align: left,
@@ -379,6 +413,8 @@
           target: target-visualizer(sol.target, sol.target-display),
           supplement: sol.supplement,
           main: sol.components.join(),
+          marking-extension: v(.65em),
+            // + markscheme.embed-pin(id: uid, usage: spec.marker.name, pos: bottom + left),
           marking: markscheme.marking-grid.with(uid),
         ),
       )
@@ -388,6 +424,16 @@
 
 //REGION: grower
 
+/// Grow (process) a branch, only effective against components of this package.
+/// Returns an array as `(grown-branch, question-count)`
+///
+/// - branch (dictionary): The branch to be grown.
+/// - parent (dictionary): Information of its parent question.
+/// - qs-count (int): The number of question on the same level before it.
+/// - components-grower (function): How to grow its components.
+/// - config (dictionary, module): The config used in component processing.
+///   [WARN] Only the `config` field is extracted from `module`, if provided.
+/// -> array
 #let branch-grower(branch, parent, qs-count, components-grower, config: (:)) = {
   let btype = component-type(branch)
   let pt = 0
@@ -395,7 +441,7 @@
   if btype == spec.flat.name {
     // flat: no action
   } else {
-    config = merge-configs(config, branch.config)
+    let conf = merge-configs(config, branch.config)
 
     if btype == spec.question.name {
       // question:
@@ -403,7 +449,7 @@
       branch.id = parent.id + (qs-count,)
       // - assign label
       if branch.label == auto {
-        branch.label = question-labeller(branch.id, config: config)
+        branch.label = question-labeller(branch.id, config: conf)
       } else if type(branch.label) == str {
         branch.label = label(spec.question.label-head + branch.label)
       }
@@ -444,6 +490,16 @@
   return (branch, qs-count)
 }
 
+/// Grow (process) an array of branches as an integral.
+/// It is used as the `components-grower` for `branch-grower`.
+/// Returns an array as `(grown-branches, total-point, question-count)`
+///
+/// - branches (array): The branches to grow.
+/// - parent (dictionary): Information of their parent question.
+/// - qs-count (int): The number of questions on the same level.
+/// - config (dictionary, module): The config used in component processing.
+///   [WARN] Only the `config` field is extracted from `module`, if provided.
+/// -> array
 #let grow-branches(branches, parent, qs-count: 0, config: (:)) = {
   // initialize from branches
   branches.fold(
@@ -473,6 +529,13 @@
 
 //REGION: visualizer
 
+/// Visualize an array of branches as an integral.
+/// Returns an array of visualized branches.
+///
+/// - branches (array): The branches to visualize.
+/// - config (dictionary, module): The config used in component visualization.
+///   [WARN] Only the `config` field is extracted from `module`, if provided.
+/// -> array
 #let visualize-branches(branches, config: (:)) = {
   branches.map(branch => {
     let btype = component-type(branch)
@@ -480,18 +543,18 @@
     if btype == spec.flat.name {
       flat-visualizer(branch, config: config)
     } else {
-      let config = merge-configs(config, branch.config)
+      let conf = merge-configs(config, branch.config)
 
       // first, visualize its components
-      branch.components = visualize-branches(branch.components, config: config)
+      branch.components = visualize-branches(branch.components, config: conf)
 
       // then, call respective visualizer
       if btype == spec.question.name {
-        question-visualizer(branch, config: config)
+        question-visualizer(branch, config: conf)
       } else if btype == spec.solution.name {
-        solution-visualizer(branch, config: config)
+        solution-visualizer(branch, config: conf)
       } else if btype == spec.feeder.name {
-        feeder-visualizer(branch, config: config)
+        feeder-visualizer(branch, config: conf)
       } else {
         panic("Unknown componemnt type `" + btype + "`!")
       }
@@ -501,20 +564,30 @@
 
 //REGION: wrapper
 
-#let qna-wrapper(..branches, config: (:)) = {
+/// [USER]: Put the `question`s, `solution`s and things that fit in a question-solution structure as this function's arguments!
+///
+/// - branches (arguments): The branches, including components of this package, to process and visualize.
+/// - config (dictionary, module): The config used in processing and visualizing this package's components.
+///   [WARN] Only the `config` field is extracted from `module`, if provided.
+/// -> content
+#let components-wrapper(..branches, config: (:)) = {
   import "defaults.typ"
-  config = merge-configs(defaults, config)
+  let conf = merge-configs(defaults, config)
 
   visualize-branches(
     grow-branches(
       branches.pos(),
       qsn-info(none),
-      config: config,
+      config: conf,
     ).first(),
-    config: config,
+    config: conf,
   ).join()
 }
 
+/// Nullify figures of `kind in (spec.question.kind, spec.solution.kind)`, showing them as `none`.
+///
+/// - body (content): The body to apply the rules on.
+/// -> content
 #let qns-nullifier(body) = {
   show figure: it => if it.kind in ("question", "solution").map(e => spec.at(e).kind) {
     none

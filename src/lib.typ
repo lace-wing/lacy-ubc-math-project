@@ -1,17 +1,15 @@
-#import "@preview/physica:0.9.3": *
+#import "@preview/physica:0.9.5": *
 #import "@preview/unify:0.7.1": *
-#import "@preview/equate:0.2.1": *
+#import "@preview/equate:0.3.2": *
 
 #import "defaults.typ": config as defaults
 #import "loader.typ"
 
 #import "components.typ"
-#import components: author, question, solution, feeder, qna-wrapper as qna
+#import components: author, question, solution, feeder, components-wrapper as qns
 #import "markscheme.typ"
 #import "shorthand.typ": *
 #import "drawing.typ"
-
-#import "unsafe.typ"
 
 /*******
  * Setup
@@ -25,7 +23,7 @@
 /// - number (int, float, version, none): The number of the project.
 /// - flavor (str, content, none): The flavor of the project.
 /// - group (str, content, none): The group name.
-/// - authors (arguments): The authors of the project, use `author()` to fill it.
+/// - authors (arguments): The authors of the project, use the `author` function for them.
 /// - body (block): The content of the document.
 ///
 /// -> content
@@ -74,6 +72,7 @@
       a.name.first + " " + a.name.last
     }),
   )
+
   #set page(numbering: none)
   #set par(first-line-indent: 0em)
   #set text(font: ("DejaVu Serif", "New Computer Modern"), size: 10pt)
@@ -100,9 +99,9 @@
           stack(
             dir: ttb,
             spacing: 0.65em,
-            [#a.name.first *#a.name.last* #a.suffix],
+            [#a.name.first *#a.name.last*] + if a.suffix != none [ #a.suffix],
             {
-              if type(a.id) == int {
+              if type(a.id) in (int, decimal, float) {
                 raw(str(a.id))
               } else if type(a.id) == str {
                 raw(a.id)

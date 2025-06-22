@@ -1,24 +1,26 @@
 #import "@preview/lacy-ubc-math-project:0.2.0": *
 // Import markscheme, including the box needed for marking
-#import markscheme as m: markbox
-// Import the common content.
+#import markscheme as m: markit
+// Import the user config, including author information.
 #import "config.typ": *
+
+#set page(foreground: m.foreground-marking)
+
 #show: setup.with(
   number: 1,
   flavor: [A], // Don't want a flavor? Just remove this line.
   group: group-name,
+  // In config.typ, we set up these author information.
   jane-doe,
-  // Alex was not there, so we add an "(NP)" suffix.
+  // Say, Alex was not participating, so we add an "(NP)" suffix.
   alex-conquitlam[(NP)],
-  // If you just want all authors, instead write:
-  // ..authors.values(),
 )
 
-// Here is your project content.
+// Below is your project content.
+
 = The Problem
 
-#qna(
-  config: config,
+#qns(
   question(
     point: 5,
     [
@@ -41,11 +43,44 @@
       )
     ],
 
-    solution[
-      #markbox(m.r(2))[You can do it.]
+    solution(label: "fair", config: config)[
+      #markit(m.r(2))[
+        You can do it. By this reasoning I get 2 points, and I am labeled ```typ <sn:fair>```!
+      ]
     ],
   ),
+  question(
+    [
+      I do not have a point myself, but my sub-question have point, and I get the sum of theirs!
+    ],
+    question(
+      point: 1,
+      [The point is...],
+      solution(
+        [
+          ...that you try solving @qs:1 (```typ @qs:1```), learn something along the way.
+        ],
+        question(
+          point: 99,
+          [
+            I am worth 99 points, but my parent question had explicitly stated that it is worth 1 point.
+          ],
+          solution[
+            The marking of @sn:fair[that] (```typ @sn:fair[that]```) sure sounds fair.
+          ],
+        ),
+      ),
+    ),
+    question(
+      [
+        Take a look at the #link("https://github.com/lace-wing/lacy-ubc-math-project/blob/master/manual.pdf")[manual] there if you are lost or want advanced stuff!
+      ],
+      solution[
+        $
+          #markit(m.a(0), m.c(0), $42$) #<eq:me>
+        $
+      ],
+    ),
+  ),
 )
-
-There is a #link("https://github.com/lace-wing/lacy-ubc-math-project")[GitHub repo] for this project, take a look at the #link("https://github.com/lace-wing/lacy-ubc-math-project/blob/master/manual.pdf")[manual] there!
 

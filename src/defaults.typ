@@ -18,16 +18,18 @@
   args,
   items,
   markscheme: false,
+  marking-width: 7.2em,
+  // marking-extension: linebreak()//context v(measure(linebreak()).height * 0.9)
 ) = {
-  let (target, supplement, main, marking) = items
-  let bodies = (target + supplement + main,)
+  let (target, supplement, main, marking, marking-extension) = items
+  let bodies = target + supplement + main
   if markscheme {
-    args += (columns: (100% - 7.2em, 7.2em))
-    bodies += (marking(),)
+    args += (columns: (100% - marking-width, marking-width))
+    bodies = (bodies + marking-extension, marking(marking-width))
   }
   func(
     ..args,
-    ..bodies,
+    ..(bodies,).flatten(),
   )
 }
 
@@ -38,6 +40,8 @@
     solution: (
       major: rgb(10%, 40%, 10%),
     ),
+    link: blue.darken(30%),
+    ref: blue.darken(30%),
   ),
   question: (
     numbering: ("1.", "a.", "i."),
