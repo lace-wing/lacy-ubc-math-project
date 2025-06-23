@@ -1,5 +1,5 @@
 #import "spec.typ": spec, spell, component-type
-#import "loader.typ": merge-configs
+#import "util.typ": merge-configs, config-state
 #import "markscheme.typ"
 
 //REGION: author
@@ -20,7 +20,7 @@
 ///  If Typst cannot convert it to `str`, the above will not apply.
 /// - ascii (str, none): A string, which is the Ascii representation of the *full* name.
 /// -> function
-#let author(firstname, lastname, id, ascii: none) = (..args) => {
+#let author(firstname, lastname, id, ascii: none, config: (:), ..pass) = (..args) => {
   let argp = args.pos()
   let argn = args.named()
 
@@ -32,14 +32,92 @@
       ),
       id: id,
       ascii: ascii,
+      prefix: none,
+      suffix: none,
+      config: config,
+      ..pass.named(),
     )
-      + if "suffix" in argn {
-        (suffix: argn.suffix)
-      } else if argp != () {
-        (suffix: argp.first())
-      } else {
-        (suffix: none)
-      }
+      + argn
+      + if argp.len() == 1 { (suffix: argp.at(0)) } else if argp.len() > 1 { (prefix: argp.at(0), suffix: argp.at(1)) }
+  )
+}
+
+/// Visualize an author object.
+///
+/// - author (dictionary): The author object to visualize.
+/// - config (dictionary): The config.
+/// -> content
+#let author-visualizer(author, config: (:)) = {
+  let conf = merge-configs(config, author.config)
+
+  (conf.author.container)(
+    stack,
+    (
+      dir: ttb,
+      spacing: .65em,
+    ),
+    (
+      author: author,
+      name: (conf.author.affix-format)(
+        (conf.author.name-format)(
+          author.name.first,
+          author.name.last,
+        ),
+        author.prefix,
+        author.suffix,
+      ),
+      id: (
+        if type(author.id) in (int, decimal, float) {
+          raw(str(author.id))
+        } else if type(author.id) == str {
+          raw(author.id)
+        } else if type(author.id) == content and "text" in a.id.fields() {
+          raw(author.id.text)
+        } else {
+          author.id
+        }
+      ),
+    ),
+    config: conf,
+  )
+}
+
+#let author-set-visualizer(authors, config: (:)) = {
+  (config.author.set-container)(
+    // the grid for rows
+    grid,
+    (
+      columns: 1,
+    ),
+    (
+      authors: authors,
+      rows: authors
+        .chunks(4)
+        .map(ck => grid(
+          // above, the grid for cols in a row
+          columns: (1fr,) * ck.len(),
+          align: center,
+          ..ck,
+        )),
+    ),
+    config: config,
+  )
+}
+
+#let project-head-visualizer(title, group, authors, config: (:)) = {
+  (config.head.container)(
+    grid,
+    (
+      columns: 1,
+      align: center,
+      inset: .65em,
+    ),
+    (
+      title: (config.title.format)(title),
+      group: (config.group.format)(group),
+      authors: authors,
+    ),
+    config: config,
   )
 }
 
@@ -305,7 +383,7 @@
         kind: spec.question.kind,
         // makes numbering into supplement, so refs can completely replace the text
         supplement: _ => (
-          spec.question.supplement
+          conf.question.supplement
             + " "
             + qsn.id.enumerate().map(((x, i)) => numbering(conf.question.numbering.at(x), i)).join()
         ),
@@ -397,7 +475,7 @@
         kind: spec.solution.kind,
         // makes numbering into supplement, so refs can completely replace the text
         supplement: _ => (
-          spec.solution.supplement
+          conf.solution.supplement
             + if sol.target != none {
               [ to #ref(sol.target)]
             }
@@ -576,9 +654,8 @@
 /// - config (dictionary, module): The config used in processing and visualizing this package's components.
 ///   [WARN] Only the `config` field is extracted from `module`, if provided.
 /// -> content
-#let components-wrapper(..branches, config: (:)) = {
-  import "defaults.typ"
-  let conf = merge-configs(defaults, config)
+#let components-wrapper(..branches, config: (:)) = context {
+  let conf = merge-configs(config-state.get(), config)
 
   visualize-branches(
     grow-branches(

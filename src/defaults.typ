@@ -3,6 +3,7 @@
 /// - func (function): The original container function.
 /// - args (dictionary): The original non-content arguments for the function.
 /// - items (dictionary): Items that can show up as content.
+/// - config (dictionary): The config used by the container's feeder.
 /// -> content
 #let question-container(
   func,
@@ -25,6 +26,7 @@
 /// - items (dictionary): Items that can be used for output.
 /// - markscheme (bool): Whether to enable the marking column.
 /// - marking-width (length, relative, fraction, auto): A column width, for the markings.
+/// - config (dictionary): The config used by the container's feeder.
 /// -> content
 #let solution-container(
   func,
@@ -50,36 +52,140 @@
   )
 }
 
+/// The default name formatter. Produce a formatted English name from a first name and a last name.
+///
+/// - first (str, content): The first name.
+/// - last (str, content): The last name, i.e. surname. It is turned bold.
+/// - sink (aurguments): Sink arguments which this formatter does not use.
+/// -> content
+#let author-name-formatter(first, last, ..sink) = [#first *#last*]
+
+/// Apply affixes to a name.
+///
+/// - name (str, content): The name.
+/// - prefix (str, content, none): The prefix.
+/// - suffix (str, content, none): The suffix.
+/// - sink (arguments): Sink arguments which this formatter does not use.
+/// -> content
+#let author-affix-formatter(name, prefix, suffix, ..sink) = {
+  if prefix != none [#prefix]
+  name
+  if suffix != none [ (#suffix)]
+}
+
+/// The default author container. Produce a top-to-bottom stack of full name and ID.
+///
+/// - func (function): The original container function.
+/// - args (dictionary): The original non-content arguments.
+/// - items (dictionary): Items that can be used for output.
+/// - config (dictionary): The config used by the container's feeder.
+/// -> content
+#let author-container(
+  func,
+  args,
+  items,
+  config: (:),
+) = {
+  let (name, id) = items
+  func(
+    ..args,
+    name,
+    id,
+  )
+}
+
+/// The default author set container. Produce a grid-in-grid, maximum 4 authors spread out on each row.
+///
+/// - func (function): The original container function.
+/// - args (dictionary): The original non-content arguments.
+/// - items (dictionary): Items that can be used for output.
+/// - config (dictionary): The config used by the container's feeder.
+/// -> content
+#let author-set-container(
+  func,
+  args,
+  items,
+  config: (:),
+) = {
+  let (rows,) = items
+  func(
+    ..args,
+    ..rows,
+  )
+}
+
+#let head-container(
+  func,
+  args,
+  items,
+  config: (:),
+) = {
+  let (title, group, authors) = items
+  func(
+    ..args,
+    title,
+    group,
+    authors,
+  )
+}
+
 /// The default config.
 #let config = (
-  foreground: (
+  global: (
     color-major: black,
-  ),
-  background: (
-    color-major: white,
+    color-minor: blue.darken(67%),
   ),
   link: (
     color-major: blue.darken(30%),
+    rule: body => body + sym.arrow.t.curve,
   ),
   ref: (
-    color-major: blue.darken(30%),
+    color-major: green.darken(40%),
+    rule: body => body + sym.arrow.t.curve,
+  ),
+  title: (
+    format: it => text(size: 1.2em, weight: "bold", upper(it)),
+  ),
+  group: (
+    format: it => text(size: 1.2em, it),
+  ),
+  author: (
+    name-format: author-name-formatter,
+    affix-format: author-affix-formatter,
+    container: author-container,
+    set-container: author-set-container,
+    rule: body => body,
+  ),
+  head: (
+    container: head-container,
   ),
   question: (
+    supplement: "Question",
     numbering: ("1.", "a.", "i."),
     labelling: ("1", "a", "i"),
     container: question-container,
     rule: body => body,
     color-major: black,
     color-minor: white,
-    stroke-major: 0pt,
-    stroke-minor: 0pt,
+    stroke-major: 0pt + black,
+    stroke-minor: 0pt + black,
   ),
   solution: (
+    supplement: "Solution",
     container: solution-container,
     rule: body => body,
     color-major: black,
     color-minor: rgb(10%, 50%, 10%),
     stroke-major: 1pt + rgb(10%, 50%, 10%),
-    stroke-minor: 1pt + rgb(10%, 50%, 10%).transparentize(50%),
+    stroke-minor: .8pt + rgb(10%, 50%, 10%).transparentize(50%),
+  ),
+  math: (
+    color-major: black,
+    color-minor: maroon,
+    rule: body => body,
+    equate: true,
+    implicit-numbering: false,
+    numbering: "(1.1)",
+    transpose: true,
   ),
 )

@@ -1,3 +1,11 @@
+#let config-state = state("lacy-ubc-math-project-config", (:))
+
+#let compose(body, ..funcs) = (body, ..funcs.pos()).reduce((it, func) => if type(func) == function {
+  func(it)
+} else {
+  it
+})
+
 #let try-dict(data) = {
   let t = type(data)
   if t == dictionary {
@@ -31,9 +39,7 @@
 )
 
 #let merge-configs(..conf) = merge-dicts(
-  ..conf
-    .pos()
-    .map(c => if type(c) == module { try-dict(c).at("config", default: (:)) } else { try-dict(c) }),
+  ..conf.pos().map(c => if type(c) == module { try-dict(c).at("config", default: (:)) } else { try-dict(c) }),
 )
 
 

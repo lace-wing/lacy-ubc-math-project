@@ -3,7 +3,7 @@
 #import "@preview/equate:0.3.2": *
 
 #import "defaults.typ": config as defaults
-#import "loader.typ"
+#import "util.typ"
 
 #import "components.typ"
 #import components: author, question, solution, feeder, components-wrapper as qns
@@ -15,15 +15,15 @@
  * Setup
  *******/
 
-/// Setup for the document.
-/// [WARN] `authors` requires specific structure.
-/// Use function `author()` to help construct them.
+/// Setup the project: import relevant packages, configure global styles like font and page numbering.
+/// [WARN] `authors` requires specific structure, use function `author()` to help construct them.
 ///
 /// - project (str, content): The name of the project.
 /// - number (int, float, version, none): The number of the project.
 /// - flavor (str, content, none): The flavor of the project.
 /// - group (str, content, none): The group name.
-/// - authors (arguments): The authors of the project, use the `author` function for them.
+/// - config (dictionary, module, array): The config, containing various document processing and style information. Can be an `array` of configs in `dictionary` a/o `module`.
+/// - authors (arguments): The authors of the project.
 /// - body (block): The content of the document.
 ///
 /// -> content
@@ -32,11 +32,22 @@
   number: none,
   flavor: none,
   group: none,
+  config: (:),
   ..authors,
   body,
 ) = [
+  #import "components.typ": *
+  #import "util.typ": *
+
+  // load config
+  #if type(config) == dictionary { config = (config,) }
+  #let conf = merge-configs(defaults, ..config)
+  #context config-state.update(conf)
+
+  // make authors
   #let authors = authors.pos().map(a => if type(a) == function { a() } else { a })
 
+  // make title
   #let title = {
     [#project]
     if number != none {
@@ -47,6 +58,7 @@
     }
   }
 
+  // populate title and author metadata
   #set document(
     title: title,
     author: authors.map(a => {
@@ -73,58 +85,51 @@
     }),
   )
 
-  #set page(numbering: none)
-  #set par(first-line-indent: 0em)
+  //REGION: package soft rules
   #set text(font: ("DejaVu Serif", "New Computer Modern"), size: 10pt)
-  #let link_s = text.with(fill: blue.darken(30%))
-  #show ref: link_s
-  #show link: link_s
 
-  #show: super-T-as-transpose // Render "..^T" as transposed matrix
-  #show: equate.with(breakable: true, sub-numbering: true, number-mode: "label")
-  #set math.equation(numbering: "(1.1)")
+  //REGION: global
+  #set text(fill: conf.global.color-major)
 
+  //REGION: ref
+  #show ref: set text(fill: conf.ref.color-major)
+  #show ref: conf.ref.rule
+
+  //REGION: link
+  #show link: set text(fill: conf.link.color-major)
+  #show link: conf.link.rule
+
+  //REGION: math
+  #show math.equation: set text(fill: conf.math.color-major)
+  #set math.equation(numbering: conf.math.numbering)
+  #show: doc => compose(
+    doc,
+    (if conf.math.transpose { super-T-as-transpose }),
+    (
+      if conf.math.equate {
+        equate.with(
+          breakable: true,
+          sub-numbering: true,
+          number-mode: (if conf.math.implicit-numbering { "line" } else { "label" }),
+        )
+      }
+    ),
+  )
+
+  //REGION: package hard rules
   // show question and solution figures as none
-  #show: components.qns-nullifier
+  #show: qns-nullifier
 
-  #[
-    #set align(center)
-    #text(size: 1.2em, weight: "bold", upper(title))
-    #v(0.2em)
-    #text(size: 1.2em, group)
-
-    #for a in (
-      authors
-        .map(a => {
-          stack(
-            dir: ttb,
-            spacing: 0.65em,
-            [#a.name.first *#a.name.last*] + if a.suffix != none [ #a.suffix],
-            {
-              if type(a.id) in (int, decimal, float) {
-                raw(str(a.id))
-              } else if type(a.id) == str {
-                raw(a.id)
-              } else if type(a.id) == content and "text" in a.id.fields() {
-                raw(a.id.text)
-              } else {
-                a.id
-              }
-            },
-          )
-        })
-        .chunks(4)
-    ) {
-      grid(
-        align: center,
-        columns: a.len(),
-        column-gutter: 40% / a.len(),
-        ..a
-      )
-    }
-
-    #v(1.3em)
-  ]
+  //REGION: doc head
+  #project-head-visualizer(
+    title,
+    group,
+    author-set-visualizer(
+      authors.map(a => author-visualizer(a, config: conf)),
+      config: conf,
+    ),
+    config: conf
+  )
 
   #body
 ]

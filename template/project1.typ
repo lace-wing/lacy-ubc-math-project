@@ -1,5 +1,5 @@
 #import "@preview/lacy-ubc-math-project:0.2.0": *
-// Import markscheme, including the box needed for marking
+// Import markscheme as "m" so it is easier to type, then markit so it is easier to call (no need of "m.markit").
 #import markscheme as m: markit
 // Import the user config, including author information.
 #import "config.typ": *
@@ -10,10 +10,13 @@
   number: 1,
   flavor: [A], // Don't want a flavor? Just remove this line.
   group: group-name,
+  config: config, // Non-default config from config.typ
   // In config.typ, we set up these author information.
-  jane-doe,
-  // Say, Alex was not participating, so we add an "(NP)" suffix.
-  alex-conquitlam[(NP)],
+  alex-conquitlam,
+  // Say, Jane was not participating, so we add a prefix and a suffix to indicate that.
+  jane-doe[MISSING: ][NP],
+  // /* Or, suffix only: */ jane-doe[NP],
+  // Learn more about adding prefix and suffix in the manual.
 )
 
 // Below is your project content.
@@ -21,7 +24,6 @@
 = The Problem
 
 #qns(
-  config: config,
   question(
     point: 5,
     [
@@ -78,7 +80,7 @@
       ],
       solution[
         $
-          #markit(m.c(6), $42$) #<eq:me>
+          #markit(m.c(6), $42^T$) //#<eq:me>
         $
       ],
     ),

@@ -16,11 +16,9 @@
   flat: (:),
   feeder: (:),
   question: (
-    supplement: "Question",
     label-head: "qs:",
   ),
   solution: (
-    supplement: "Solution",
     label-head: "sn:",
   ),
   mark: (
@@ -53,4 +51,3 @@
   }
   return spec.flat.name
 }
-
