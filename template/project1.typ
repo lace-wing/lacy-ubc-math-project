@@ -21,6 +21,7 @@
 = The Problem
 
 #qns(
+  config: config,
   question(
     point: 5,
     [
@@ -43,8 +44,8 @@
       )
     ],
 
-    solution(label: "fair", config: config)[
-      #markit(m.r(2))[
+    solution(label: "fair")[
+      #markit(m.r(2)[this is a marking])[
         You can do it. By this reasoning I get 2 points, and I am labeled ```typ <sn:fair>```!
       ]
     ],
@@ -77,7 +78,7 @@
       ],
       solution[
         $
-          #markit(m.a(0), m.c(0), $42$) #<eq:me>
+          #markit(m.c(6), $42$) #<eq:me>
         $
       ],
     ),

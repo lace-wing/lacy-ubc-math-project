@@ -295,9 +295,10 @@
 ///   [WARN] Only the `config` field is extracted from `module`, if provided.
 /// -> content
 #let question-visualizer(qsn, config: (:)) = {
-  config = merge-configs(config, qsn.config)
+  let conf = merge-configs(config, qsn.config)
   [
-    #show: config.question.rule
+    #set text(fill: conf.question.color-major)
+    #show: conf.question.rule
 
     #block[
       #figure(
@@ -306,12 +307,12 @@
         supplement: _ => (
           spec.question.supplement
             + " "
-            + qsn.id.enumerate().map(((x, i)) => numbering(config.question.numbering.at(x), i)).join()
+            + qsn.id.enumerate().map(((x, i)) => numbering(conf.question.numbering.at(x), i)).join()
         ),
         numbering: _ => h(-.3em),
       )[]
       #qsn.label
-      #(config.question.container)(
+      #(conf.question.container)(
         grid,
         (
           inset: (
@@ -320,15 +321,17 @@
           ),
           columns: (1.65em, 1fr),
           align: (right, left),
+          stroke: conf.question.stroke-major,
         ),
         (
           number: numbering(
-            config.question.numbering.at(qsn.id.len() - 1),
+            conf.question.numbering.at(qsn.id.len() - 1),
             qsn.id.last(),
           ),
           point: point-visualizer(qsn.point, qsn.point-display),
           main: qsn.components.join(),
         ),
+        config: conf,
       )
     ]
   ]
@@ -386,6 +389,7 @@
     // make sure all the grids in this figure use the same uid
     #let uid = solution-counter.get().first()
 
+    #set text(fill: conf.solution.color-major)
     #show: conf.solution.rule
 
     #block[
@@ -404,7 +408,7 @@
       #(conf.solution.container)(
         grid,
         (
-          stroke: conf.colors.solution.major + .5pt,
+          stroke: conf.solution.stroke-major,
           inset: .65em,
           columns: 1fr,
           align: left,
@@ -413,10 +417,12 @@
           target: target-visualizer(sol.target, sol.target-display),
           supplement: sol.supplement,
           main: sol.components.join(),
-          marking-extension: v(.65em),
-            // + markscheme.embed-pin(id: uid, usage: spec.marker.name, pos: bottom + left),
-          marking: markscheme.marking-grid.with(uid),
+          marking-extension: none,
+          // marking-extension: v(.65em),
+          // + markscheme.embed-pin(id: uid, usage: spec.marker.name, pos: bottom + left),
+          marking: markscheme.marking.with(uid),
         ),
+        config: conf,
       )
     ]
   ]
