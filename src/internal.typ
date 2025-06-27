@@ -4,4 +4,3 @@
 #import "defaults.typ"
 #import "drawing.typ"
 #import "markscheme.typ"
-#import "shorthand.typ"

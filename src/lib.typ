@@ -7,7 +7,6 @@
 
 #import "components.typ": author, question, solution, feeder, components-wrapper as qns
 #import "markscheme.typ"
-#import "shorthand.typ": *
 #import "drawing.typ"
 
 #import "internal.typ"
@@ -123,3 +122,20 @@
 
   #body
 ]
+
+////////////////
+/* Shorthands */
+////////////////
+
+// Block style limit notation.
+#let limm = $limits("lim")$ 
+
+// Block style sum notation.
+#let summ = $limits(sum)$
+
+// A horizontal rule.
+#let hrule = {
+  v(0.2em)
+  line(length: 100%, stroke: 0.4pt)
+}
+
