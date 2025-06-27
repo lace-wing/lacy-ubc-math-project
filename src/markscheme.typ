@@ -1,4 +1,5 @@
 #import "spec.typ": spec, spell, component-type
+#import "util.typ": config-state
 
 // unique solution count, used for markscheme
 #let solution-counter = counter(spec.solution.kind)
@@ -23,8 +24,14 @@
 /// - width (length, auto): The width of box to fit the marking.
 /// - sum (bool): Whether to visualize to the markers' sum.
 /// -> content
-#let markers-visualizer(markers, width: auto, sum: false) = {
-  set text(size: 0.8em, style: "italic", weight: "bold")
+#let markers-visualizer(markers, width: auto, sum: false, config: (:)) = {
+  set text(
+    font: config.global.font-minor,
+    fill: config.global.color-minor,
+    size: 0.8em,
+    style: "italic",
+    weight: "bold",
+  )
   set par(
     first-line-indent: 0pt,
     hanging-indent: 0pt,
@@ -144,6 +151,8 @@
 /// #set page(foreground: m.foreground-marking)
 /// ```
 #let foreground-marking = context {
+  let conf = config-state.get()
+
   let this-page = here().page()
   let meta = query(metadata)
 
@@ -168,7 +177,7 @@
       place(
         dx: pin.location().position().x,
         dy: mark.location().position().y,
-        markers-visualizer(mark.value.markers, width: pin.value.width),
+        markers-visualizer(mark.value.markers, width: pin.value.width, config: conf),
       )
     }
   }

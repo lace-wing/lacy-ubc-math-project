@@ -134,14 +134,31 @@
   global: (
     color-major: black,
     color-minor: blue.darken(67%),
+    font-major: ("DejaVu Serif", "New Computer Modern"),
+    font-minor: ("DejaVu Serif", "New Computer Modern"),
+    font-cjk: (
+      sc: "Noto Sans CJK SC",
+      tc: "Noto Sans CJK TC",
+      hk: "Noto Sans CJK HK",
+      jp: "Noto Sans CJK JP",
+      kr: "Noto Sans CJK KR",
+    ),
+    font-size: 11pt,
+    background: box(fill: white, width: 100%, height: 100%),
+    rule: body => body,
   ),
   link: (
     color-major: blue.darken(30%),
-    rule: body => body + sym.arrow.t.curve,
+    rule: body => body,
   ),
   ref: (
     color-major: green.darken(40%),
-    rule: body => body + sym.arrow.t.curve,
+    rule: body => body,
+  ),
+  raw: (
+    font-major: "MonaspiceAr NFM",
+    color-major: black,
+    rule: body => body,
   ),
   title: (
     format: it => text(size: 1.2em, weight: "bold", upper(it)),
@@ -182,6 +199,7 @@
   math: (
     color-major: black,
     color-minor: maroon,
+    font-major: "New Computer Modern Math",
     rule: body => body,
     equate: true,
     implicit-numbering: false,

@@ -7,7 +7,11 @@
 
 #show: setup.with(
   group: group-name,
-  config: config, // Non-default config from config.typ
+  // Non-default config from config.typ
+  config: (
+    theme.ubc-light,
+    config,
+  ),
   // In config.typ, we set up these author information.
   alex-conquitlam,
   // Say, Jane was not participating, so we add a prefix and a suffix to indicate that.
@@ -77,7 +81,7 @@
       ],
       solution[
         $
-          #markit(m.c(6), $42^T$) //#<eq:me>
+          #markit(m.c(6), $42^T$) #<eq:me>
         $
       ],
     ),

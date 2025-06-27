@@ -3,6 +3,7 @@
 #import "@preview/equate:0.3.2": *
 
 #import "defaults.typ": config as defaults
+#import "theme.typ"
 #import "util.typ"
 
 #import "components.typ": author, question, solution, feeder, components-wrapper as qns
@@ -72,11 +73,20 @@
     }),
   )
 
-  //REGION: package soft rules
-  #set text(font: ("DejaVu Serif", "New Computer Modern"), size: 10pt)
-
   //REGION: global
-  #set text(fill: conf.global.color-major)
+  #set text(
+    font: conf.global.font-major,
+    size: conf.global.font-size,
+    fill: conf.global.color-major,
+  )
+  #set page(background: conf.global.background)
+
+  //REGION: raw
+  #show raw: set text(
+    font: conf.raw.font-major,
+    fill: conf.raw.color-major,
+  )
+  #show raw: conf.raw.rule
 
   //REGION: ref
   #show ref: set text(fill: conf.ref.color-major)
@@ -87,7 +97,11 @@
   #show link: conf.link.rule
 
   //REGION: math
-  #show math.equation: set text(fill: conf.math.color-major)
+  #show math.equation: set text(
+    font: conf.math.font-major,
+    fill: conf.math.color-major,
+  )
+
   #set math.equation(numbering: conf.math.numbering)
   #show: doc => compose(
     doc,
@@ -102,6 +116,9 @@
       }
     ),
   )
+
+  //REGION: arbitrary global
+  #show: conf.global.rule
 
   //REGION: package hard rules
   // show question and solution figures as none
@@ -128,7 +145,7 @@
 ////////////////
 
 // Block style limit notation.
-#let limm = $limits("lim")$ 
+#let limm = $limits("lim")$
 
 // Block style sum notation.
 #let summ = $limits(sum)$

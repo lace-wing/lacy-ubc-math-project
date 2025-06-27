@@ -85,8 +85,6 @@
   ],
 )
 
-#set text(font: ("DejaVu Serif", "STFangsong"))
-
 This #link("https://typst.app/docs")[Typst] template initially is to help you write and format #link("https://www.math.ubc.ca/undergraduate/courses")[UBC_V MATH 100&101] group projects. It is based on their existing (2025) LaTeX template. Despite the name, it offers a flexible layout for possibly other types of question-solution documents.
 
 This manual has two specifics: one for "Student:" who consume documents already populated with content, and the other for "Instructor:" (TA's too) who use the template to make projects for the students.
@@ -251,7 +249,7 @@ By default, they are displayed like:
 These title and authors given to ```typc setup()``` are also saved to PDF metadata, which is reflected in the PDF document properties.
 
 / Caveat: At this point, only one name format, "first last", is in the defaults. Contribution is welcome.
-  But, how could Zhangsan (张三) and Yamada Hanako (山田花子) work-around to get their name displayed correctly? See Advanced [TODO].
+  But, how could Zhangsan and Yamada Hanako work-around to get their name displayed correctly? See Advanced [TODO].
 
 == Reusable Content
 Since one group can take on multiple projects, it is wise to save common features like the members' information and the group name for multiple uses.
