@@ -1,54 +1,28 @@
 #import "@preview/showman:0.1.2": runner
-#set text(font: ("DejaVu Serif", "New Computer Modern"))
-#import "@preview/equate:0.2.1": equate
-#set math.equation(numbering: "(1.1)")
-#show: equate.with(breakable: true, sub-numbering: true)
-#import "@preview/mitex:0.2.4": mitex
-#import "@preview/physica:0.9.4": *
-#show: super-T-as-transpose // Render "..^T" as transposed matrix
+// #import "@preview/mitex:0.2.5": mitex
 
-#show link: underline
-#show link: set text(fill: blue.darken(25%))
-
-#import "lib.typ" as lib
+#import "src/lib.typ"
 #import lib: *
 
-#for c in unsafe.__question-counters {
-  c.update(1)
+#show "Instructor:": text.with(fill: color.yellow.darken(33%), weight: "semibold")
+#show "Student:": text.with(fill: green.darken(33%), weight: "semibold")
+
+//SOURCE: https://gist.github.com/felsenhower/a975c137732e20273f47a117e0da3fd1
+#let LaTeX = {
+  let A = (offset: (x: -0.33em, y: -0.3em), size: 0.7em)
+  let T = (x_offset: -0.12em)
+  let E = (x_offset: -0.2em, y_offset: 0.23em, size: 1em)
+  let X = (x_offset: -0.1em)
+  [L#h(A.offset.x)#text(size: A.size, baseline: A.offset.y)[A]#h(T.x_offset)T#h(E.x_offset)#text(size: E.size, baseline: E.y_offset)[E]#h(X.x_offset)X]
 }
-
-#align(
-  horizon,
-  [
-    #align(
-      center,
-      text(
-        size: 1.5em,
-        weight: "bold",
-        [
-          #text(fill: black.transparentize(80%))[Lacy]
-          UBC Math Group Project Template \
-          User Manual
-        ],
-      ),
-    )
-
-    #outline(depth: 1)
-  ],
-)
-
-#set page(numbering: "1")
-#show heading.where(level: 1): it => {
-  pagebreak(weak: true)
-  it
-}
+#show "LaTeX": LaTeX
 
 #let get-orientation(dir) = {
   if dir == ltr {
     return (
       dir: ltr,
       cols: (1fr, 1fr),
-      align: (x, y) => horizon + (right, left).at(calc.rem(x, 2)),
+      align: (x, y) => (right, left).at(calc.rem(x, 2)),
       line: grid.vline,
     )
   } else if dir == ttb {
@@ -61,13 +35,18 @@
   }
 }
 
-#let showcode(code, dir: ltr) = {
+#let showcode(code, dir: ltr, wrap: none) = {
   let orientation = get-orientation(dir)
   let prefix = ""
   let suffix = ""
   if code.lang == "typc" {
     prefix = prefix + "\n#{"
     suffix = "}\n" + suffix
+  }
+
+  if wrap != none {
+    prefix = prefix + "\n" + (if code.lang == "typst" { "#" }) + wrap + "("
+    suffix = ")\n" + suffix
   }
 
   runner.standalone-example(
@@ -94,261 +73,226 @@
 
 //START
 
-= Introduction <sc:intro>
-This template is designed to help you write and format your math group projects. It is based on the existing (2025) LaTex template. Despite the limited initial purpose, it offers a clean layout for possibly other types of question-solution documents.
+#show: setup.with(
+  config: (
+    title: (
+      format: text.with(size: 1.5em, weight: "bold"),
+    ),
+  ),
+  title: [
+    #text(fill: black.transparentize(67%))[Lacy-UBC]
+    Math Group Project Template \ User Manual
+  ],
+)
 
-You are recommended to read the #link(<sc:start>, [Getting Started]) and #link(<sc:math>, [Math]).
+#set text(font: ("DejaVu Serif", "STFangsong"))
 
-== Motivation
-Why use this template? The previous two popular choices, MS Word and LaTex, each had significant drawbacks. MS Word might be easy to start with, but math formatting is a nightmare; plus, software support is not so good on non-Windows platforms. LaTex, on the other hand, is powerful but has a steep learning curve, the source document becomes hardly readable after a few edits; collaboration is not simple as Word, since a free Overlead account can only have one collaborator per document, while an upgrade is (in my opinion) drastically overpriced.
+This #link("https://typst.app/docs")[Typst] template initially is to help you write and format #link("https://www.math.ubc.ca/undergraduate/courses")[UBC_V MATH 100&101] group projects. It is based on their existing (2025) LaTeX template. Despite the name, it offers a flexible layout for possibly other types of question-solution documents.
 
-How about elegant math typesetting, blazingly fast automatic layout and unlimited collaboration? Typst seems to be the solution. Although still in development, it is more than enough for our use cases. Let's see:
+This manual has two specifics: one for "Student:" who consume documents already populated with content, and the other for "Instructor:" (TA's too) who use the template to make projects for the students.
+
+You can skip to the next page if you already know why you are using a Typst template.
+
+#line(length: 100%)
+
+The two popular choices among students for typesetting math content, Word and LaTeX, each has significant drawbacks.
+
+Word, sounds familiar and easy, but...
+- the math formatting (MathType) may be uncomfortable;
+- you pretty much have to use MS Word/WPS/Google Doc/Pages, because...
+- the editing experience using "libre" solutions like LibreOffice are subpar;
+- many do not really know how to make use of Word, like styles, ruler, tab stops and template, so documents get messy.
+
+LaTeX is a powerful and professional academic typesetting system, plus, you can use your favorite text editor, but...
+- document source can quickly become hardly readable;
+- the syntax may be cryptic;
+- the error messages are cryptic;
+- compilation (PDF generation) can be slow;
+- collaboration of more than two people (on Overleaf) requires either an #text(fill: black.transparentize(67%))[overpriced] subscription, or workarounds.
+
+How about elegant math typesetting, blazingly fast layout and unlimited collaboration?
 #block(
   breakable: false,
   grid(
-    columns: (1fr, 1fr, 1fr),
+    columns: (1fr, 2fr, 1fr),
     align: center + horizon,
     inset: 8pt,
-    [LaTex],
+    [LaTeX],
     ```latex
     \[ e^{-\frac{x^2}{3}} \]
     ```,
-    mitex(`e^{-\frac{x^2}{3}}`),
+    grid.cell(rowspan: 2)[#set text(size: 1.5em); $ e^(-x^2 / 3) $],
     grid.hline(stroke: 0.25pt),
     [Typst],
     ```typst
     $ e^(-x^2 / 3) $
     ```,
-    $ e^(-x^2 / 3) $,
   ),
 )
 
-Clearly, Typst's math syntax is way more intuitive and readable.
+Still in development, Typst is more than enough for our use cases:
+- simple math typesetting, much like on WebWork;
+- no more `\begin{hell} \backslash \end{hell}`;
+- fast compilation, typically in milliseconds;
+- friendly manual, function signature and error messages;
+- yes, a _fully functional_ #link("https://myriad-dreamin.github.io/tinymist")[language server]: completion, preview and many more;
+- integration with your favorite text editor;
+- a modern, free and collaborative #link("https://typst.app")[online editor];
+- easy customization by user, relative to LaTeX.
 
-As another plus, Typst documents usually compile in milliseconds, whereas LaTex can take seconds or even longer. With this speed, every keystroke is immediately reflected in the preview, which can be a huge productivity boost.
+However, notice some caveats of Typst:
+- it is still in the version `0.something` area, meaning breaking changes can be introduced;
+- its current ecosystem may not suffice if you want some really fancy or niche stuff.
 
-The official Typst web app allows unlimited collaborators in a document, which is a huge advantage over Overleaf, given that there are often more than 2 people in a math group. Did I mention that team management is also a free feature?
+#counter(page).update(0)
+#set page(numbering: "1")
 
-
+#outline(depth: 2)
 
 = Getting Started <sc:start>
-#quote[So, how do I even start using Typst?]
+You have two options: working online or local. Since this is a "group project" template, you probably want to work online for collaboration. Here is a step-by-step guide to get you started.
 
-First thing first, it is all free.
-
-You have 2 options: working online or offline. Since this is a "group project" template, you probably want to work online for collaboration. Here is a step-by-step guide to get you started.
-
-+ #link("https://typst.app")[Sign up] for an account on the Typst web app.
-+ Follow some guides and explore a bit.
++ #link("https://typst.app")[Sign up] for an account of the Typst web app.
++ Follow guides and explore a bit.
 + (Optional) Assemble a team.
   + Dashboard → (top left) Team → New Team.
   + Team dashboard → (next to big team name) manage team → Add member.
 
 Voilà! You are ready to start your math group project.
 
-== Initialize Projects
-To start a math group project, simply import this package (you should have done it already) and use the ```typc setup()``` function and edit `common.typ` to define the project.
+== Instructor: Initializing a Group Project
+To start a math group project in the web app, simply
++ go to the project dashboard;
++ next to "Empty document", click on "Start from a template";
++ search and select "lacy-ubc-math-project";
++ enter your own project name, create, that easy!
 
-Fortunately, you don't have to remember all the details. #link("https://typst.app")[Typst web app] can handle the initialization for you.
+In the project just initialized, you will see two files: `config.typ` and `project-1.typ`.
 
-In the project dashboard, next to "Empty document", click on "Start from a template", search and select "lacy-ubc-math-project", enter your own project name, create, that easy!
+You will likely focus on editing `project-1.typ` for actual questions.
+The `config.typ` file can contain group and theme information that are likely more useful to students. You may also edit and distribute that for reusable theme configuration.
 
-In the project just initialized, you will see 2 files: `common.typ` and `project1.typ`.
-
-If you are to add more projects for the same group, create no new project, but add files to the existing one, like `project2.typ`, `project3.typ`, etc.
-
-=== `common.typ`
-This file is for common content that can be shared across all projects.
-For instance, your group name and members.
+=== `project-1.typ`
+A basic start of project looks like
 ```typst
-#import "@preview/lacy-ubc-math-project:0.1.1": author
-// Modify as you please.
-#let authors = (
-  jane-doe: author("Jane", "Doe", "12345678"),
-  alex-conquitlam: author(
-    "Alex",
-    "k\u{02b7}ik\u{02b7}\u{0259}\u{019b}\u{0313}",
-    99999999,
-    strname: "Alex Coquitlam"
+#import "@preview/lacy-ubc-math-project:0.2.0": *
+#import "config.typ": * // Import the config.
+#show: setup.with( //...
+```
+
+When you create more project files like `project-2.typ`, `project-3.typ`, copy these topmost two ```typc import```'s and ```typc show```.
+Below this ```typst #show: setup.with( /*...*/ )``` is your project content.
+
+== Student: Using a Group Project
+Given a project file, populated with typed questions, you may simply insert ```typc solution()``` where fit, and start solving.
+Do not forget to surround elements of a solution with (), if there are more than one; and insert commas between elements.
+#showcode(
+  dir: ttb,
+  ```typst
+#qns(
+  question(
+    [What is $1 + 1$?], // ← append a comma, if absent
+    solution[It is 2.] // Make sure it is inside the question you are answering to.
   ),
+  question(
+      [Good, now solve $integral_0^pi sin(x) dd(x)$.],
+      solution[
+        Ah yes, this is a classic application of the Quantum Turnip Theorem, which tells us that for any integral involving sine, polynomials, and irrational enthusiasm, the approach is to first change variables into invisible ducks.
+      ]
+  )
 )
-#let group-name = [A Cool Group]
-// Additional common content that you may add.
-#let some-other-field = [Some other value]
-#let some-function(some-arg) = { some-manipulation; some-output }
-```
-
-=== `project1.typ`
-Here is where you write your project content.
-```typst
-#import "@preview/lacy-ubc-math-project:0.1.1": *
-#import "common.typ": * // Import the common content.
-#show: setup.with(
-  number: 1,
-  flavor: [A], // Don't want a flavor? Just remove this line
-  group: group-name,
-  authors.jane-doe,
-  // Say, Alex is absent for this project, so we suffix an "(NP)" to their name.
-  authors.alex-conquitlam + (suffix: [(NP)]),
-  // If you just want all authors, instead write:
-  // ..authors.values(),
-)
-```
-
-When you create more project files like `project2.typ`, `project3.typ`, copy these topmost two ```typc import```'s and ```typc show```.
-Below this ```typst #show: setup.with(...)``` is your project content.
-
-== Questions & Solutions
-A math group project mostly consists of questions and solutions. You can use the ```typc question()``` and ```typc solution()``` functions to structure your content.
-#showcode(```typst
-#question(1)[
-  What is the answer to the universe, life, and everything?
-  // The solution should be in the question.
-  #solution[
-    The answer is 42.
-  ]
-  // You can nest questions and solutions.
-  #question[2 points, -1 if wrong][
-    What do you get when you multiply six by nine?
-    #solution[
-      42\.
-    ]
-  ]
-]
 ```)
 
-== Learn Typst
+If the project is provided with a corresponding `config.typ`, consider if it conflicts with yours, if any.
+
+= Learning Typst
 Yes, you do have to learn it, but it is simple (for our purpose).
+Consult the #link("https://staging.typst.app/docs")[Typst documentation], maybe the #link("https://sitandr.github.io/typst-examples-book/book/about.html")[Typst Examples Book] even if they say "don't rely on it."
 
-Here is a quick peek at some useful syntaxes:
-#showcode(
-  ```typst
-  You will sometimes _emphasize important information_ in your questions and solutions. // 1 linebreak = 1 space.
-  Or, go a step further to *boldly* state the matter. <ex:bold> // <label-name> to place a label.
-  // 1+ blank lines = 1 paragraph break.
-
-  Of course, we write math equations like $x^2 + y^2 = z^2 "with text and quantities, e.g." qty(2, cm)$. Need big math display?
-  $ \$ "math" \$ = "display style math" $
-  $
-    E = m c^2 \ // " \" = newline
-    lim_(x -> 0) f(x) = 0 #<eq:ex:lim> // Use #<label-name> in math.
-  $
-  // #link(<label-name>)[displayed text] to reference a label.
-  // For equation, figure and bibliography, @label-name is also available.
-  Want to get #link(<ex:bold>)[*_bold_*]? Let's look at @eq:ex:lim.
-  ```,
-  dir: ttb,
-)
-
-For general techniques, consult the #link("https://staging.typst.app/docs")[Typst documentation].
-
-For this template, you can find more help from the "Other helps" line at the bottom of each help section.
-
+#link("https://typst-doc-cn.github.io/guide/FAQ.html")[There] is a collection of frequently asked, miscellaneous techniques which many find extremely helpful.
+That is, if you read Chinese...I guess web translation also works.
 
 = Setup <sc:setup>
-In ```typc setup()```, we define the project details, including the project name, number, flavor, group name, and authors. The displayed title will look like
-#align(center)[
-  `project` `number`, `flavor`
-]
-for example,
-#align(center)[
-  GROUP PROJECT 1, FLAVOUR A
-]
-
-Then it is the authors. Since this is a "group project" template, `group` indicates the group name, which will be displayed between the title and the authors.
-
-Finally, `authors`. Each author should be a dictionary with `name` and `id`. The `name` should be a dictionary with `first` and `last`. The `id` should be the student number. Such a dictionary can be created with function ```typc author()```. So, it will look like
-```typc
-// You are Jane Doe with student number 12345678
-author("Jane", "Doe", 12345678),
-```
-More authors, you ask? Just add more ```typc author()```, separated by commas.
-
-Title and authors made in ```typc setup()``` are converted to PDF metadata, which can be seen in the PDF document properties.
-
-== Author
-The `author()` function is to be used as an argument of the `setup()` function, providing an author dictionary. It takes the first name, last name, and student number as arguments. For example,
+In ```typc setup()```, we define the project details, including the title, group name and authors.
 ```typst
 #show: setup.with(
-  author("Jane", "Doe", 12345678),
-  // ...
+  title: [The Project Title],
+  group: [The Group Name],
+  // The following are from config.typ, keep reading to find out how.
+  jane-doe,
+  san-zhang,
+  // more authors...
 )
 ```
-Inside, the `author()` function will return a dictionary:
-#showcode(```typc
-author("Jane", "Doe", 12345678)
-```)
-
-And in the PDF metadata there will be a "Jane Doe" in the authors field, student number not included.
-
-=== Name Suffix
-In MATH 100/101 group projects we will add "NP" next to a student's name if they are not present.
-The ```typc author()``` function has a named argument `suffix` for this purpose.
-```typc
-author("Jane", "Doe", 12345678, suffix: "(NP)") // She was not there!
-```
-
-However, as we are already using `common.typ` to define authors, it would be easier to add a suffix to an author dictionary on-demand.
-```typst
-#show: setup.with(
-  authors.jane-doe + (suffix: "(NP)"),
-)
-```
-
-=== Special Characters in Names
-What if your last name is k\u{03b7}ik\u{02b7}\u{0259}\u{019b}\u{0313}, that happens to type...
-```
-k\u{02b7}ik\u{02b7}\u{0259}\u{019b}\u{0313}
-```
-Well, you still call `author()` with the original name.
-Hypothesize that
-- the audience is not familiar with the name;
-- the PDF metadata viewer in use does not support the special characters.
-In this case, we can
-- provide an English translation of the name;
-- use the `strname` argument to specify the English version of the name.
-#showcode(```typc
-author(
-  "Alex",
-  "k\u{02b7}ik\u{02b7}\u{0259}\u{019b}\u{0313} (Coquitlam)",
-  12345678,
-  strname: "Alex Coquitlam"
-)
-```)
-If `strname` is set, it will be used in the PDF metadata instead of the displayed name.
-
-In some more extreme cases, `strname` would be a necessity, rather than a backup. Take name #underline(text(fill: purple)[Ga])#strike[*_lli_*]#overline($cal("leo")$) as an example. The name is so special that it cannot be converted to plain text. In this case, you must provide a `strname` to avoid incomprehensible PDF metadata.
-#showcode(
-  ```typc
-  author(
-    [#underline(text(fill: purple)[Ga])#strike[*_lli_*]#overline($cal("leo")$)],
-    "Smith",
-    12345678,
-    strname: "Gallileo Smith"
+By default, they are displayed like:
+#{
+  internal.components.visualize-project-head(
+    config: defaults,
+    [The Project Title],
+    [The Group Name],
+    author("Jane", "Doe", 31415926),
+    author(
+      "San",
+      "Zhang",
+      27182818,
+      config: (author: (name-format: (f, l, ..s) => [*#l*#lower(f)])),
+    ),
+    //SOURCE: https://en.wikipedia.org/wiki/List_of_placeholder_names
+    author("Fulan", "AlFulani", 31415926),
+    author(
+      "Hanako",
+      "Yamada",
+      27182818,
+      config: (author: (name-format: (f, l, ..s) => [*#l* #f])),
+    ),
   )
-  ```,
-  dir: ttb,
-)
+}
 
+These title and authors given to ```typc setup()``` are also saved to PDF metadata, which is reflected in the PDF document properties.
+
+/ Caveat: At this point, only one name format, "first last", is in the defaults. Contribution is welcome.
+  But, how could Zhangsan (张三) and Yamada Hanako (山田花子) work-around to get their name displayed correctly? See Advanced [TODO].
+
+== Reusable Content
+Since one group can take on multiple projects, it is wise to save common features like the members' information and the group name for multiple uses.
+
+The `config.typ` file is a place to store such data.
+After the ```typst #import "config.typ": * ```, every variable in the file will be visible to you.
+Looking into the template's `config.typ`, it has
+```typst
+#let jane-doe = author("Jane", "Doe", 31415926)
+```
+which is why we could simply type `jane-doe` in the previous example and pass the full author information.
+
+== Student: Author
+The `author` function produces an author object, like above.
+Give it your first name, given name, as the first argument (```typc "Jane"```), and your last name, family name, surname, as the second argument (```typc "Doe"```); finally, your student number as the third argument (```typc 31415926```).
+
+In MATH 100/101 group projects we will suffix "NP" to a student's name if they are not present.
+Assume Jane Doe is absent for the project, simply put
+```typst
+#show: setup.with(
+  // ...
+  jane-doe[NP]
+)
+```
 
 = Math <sc:math>
 Formatting math equations is probably the reason you are here.
-Unlike LaTex, math in Typst is simple.
 #(
   (
     "E = m c^2",
     "e^(i pi) = -1",
-    "cal(l) = (-b plus.minus sqrt(b^2 - 4a c))\n\t / (2a)",
+    "(-b plus.minus sqrt(b^2 - 4a c)) / (2a)",
   )
     .map(eq => [
       #showcode(raw("$" + eq + "$", lang: "typst", block: true))
     ])
     .join()
 )
-A space is required to display consecutive math letters, as ```typst $m c^2$``` for $m c^2$.
+A space is required to display consecutive math letters, like ```typst $m c^2$``` for $m c^2$.
 
-Most of the time, you have to leave a space between single letters to show consecutive letters.
-The template has you covered on some common multi-letter operators, like
+This package has you covered on some common multi-letter operators:
 #showcode(```typst
 Inline math:
 $lim_(x->oo), limm_(x->oo)$
@@ -362,15 +306,15 @@ $
 $
 ```)
 
-/ Caution: Though you can, and sometimes want to use block style in inline math, be aware that the block expressions will occupy more vertical space (clear in the example above), separating lines or overlapping with surrounding texts.
+/ Caution: Though you can, and sometimes want to use block style in inline math, be aware that bigger math expressions occupy more vertical space, separate or overlap with surrounding texts.
 
 For "block" or "display" math, leave a space or newline between _both_ dollar signs and the equations.
 #showcode(```typst
 $ E = m c^2 $
 ```)
 
-To break a line in math, use a backslash `\`.
-To align expressions in display math, place an `&` on each line where you want them to align to.
+To break a line in math, use a backslash "\\".
+To align expressions in display math, place an "&" on each line where you want them to align to; you may even use multiple "&"s to align equations that are too long to stay in one part.
 #showcode(```typst
 $
   x + y &= z \
@@ -389,21 +333,11 @@ To display normal text in math mode, surround the text with double quotes functi
 $x = "We are going to find out!"$
 ```)
 
-If you need normal single-letter text, fist see if it is a lone unit.
-If so, use the ```typc unit()``` function.
-#showcode(```typst
-$unit(N) = unit(kg m s^(-2))$
-```)
-A unit with a value is called a quantity, ```typc qty()```.
-#showcode(```typst
-$qty(1, m) = qty(100, cm)$
-```)
+If you are to display units, see #link(<sc:unify>)[Units and Quantities].
 
-More about these in #link(<sc:metro>)[Units and Quantities].
-
-Otherwise, use ```typc upright()```.
+For non-unit, single-character normal text, use ```typc upright()```.
 #showcode(```typst
-$U space upright(U) space U$
+$U upright(W) U$
 ```)
 
 There are other text styles available in math mode.
@@ -416,17 +350,14 @@ bb("Blackboard bold") \
 cal("Calligraphic")$
 ```)
 
-== Language Syntax in Math
-In (at least) MATH 100 group projects, math equations is a part of your English (or whatever) writings. Make sure to use proper grammar and *punctuations*. Yes, you will add periods after finishing equations.
-
 == Numbering and Referencing Equations
-Note that you must enable equation numbering to reference equations, which is set by this template. Add a ```typst #<label-name>``` right after the equation you wish to reference.
+Note that you must enable equation numbering to reference equations, which this template does. Attach a ```typm #<label>``` right after the equation you wish to reference.
 #showcode(```typst
 $
-  e^(i pi) = -1 #<eq:ex:euler>
+  e^(i pi) = -1 #<eq:euler>
 $
-@eq:ex:euler is Euler's identity. \
-#link(<eq:ex:euler>)[The same reference].
+@eq:euler is Euler's identity. \
+#link(<eq:euler>)[The same reference],
 ```)
 
 == Extra Math Symbols and Functions
@@ -443,181 +374,162 @@ $tensor(Lambda,+mu,-nu) = dmat(1,RR)$
 $f(x,y) dd(x,y)$
 ```)
 
-It is imported in this template.
+It is imported by this template.
 
-== Units and Quantities <sc:metro>
+== Units and Quantities <sc:unify>
 Although no as common as in physics, we do sometimes need to use units and quantities.
 Directly typing the 'units' will not result in correct output.
 #showcode(```typst
-$1 m = 100 cm$
+$1 m = 100 c m$
 ```)
 #showcode(```typst
-$N = kg m s^(-2)$
+$N = k g m s^(-2)$
 ```)
 
-This template uses the `metro` package for this purpose.
-If you prefer, you can also import and use the `unify` package.
+This template uses the `unify` package for this purpose.
+If you prefer, you can also import and use the `metro` package.
 #showcode(```typst
-$qty(1, m) = qty(100, cm)$
+$qty("1", "m") = qty("100", "cm")$
 ```)
 #showcode(```typst
-$unit(N) = unit(kg m s^(-2))$
+$unit("N") = unit("kg m s^(-2)")$
 ```)
 
 As you see, the ```typc qty()``` and ```typc unit()``` functions correct the numbers, units and spacing.
 
-One thing, `metro` does not yet support symbols as units, so if you are to use symbols, make them strings.
-#align(center, ```typst
-// This will not work
-$qty(3, Omega)$
-// ↓ wrap the symbol in double quotes
-```)
-#showcode(```typst
-$qty(3, "Omega")$
-```)
+/ Caution: `unify` does not support content as arguments, so your math content should be made `str` before passing to the quantity and unit functions. \
+  The following will not work:
+  #align(
+    center,
+    ```typst
+    $qty(3, Ohm)$
+    ```,
+  )
+  Instead, wrap both the number and the unit in double quotes to make them `str`:
+  #showcode(```typst
+  $qty("3", "Ohm")$
+  ```)
 
 
 = Question
-The `question()` function is to create a question block. <ex:qs-block>
-#showcode(```typst
-#question(4)[
-  The question.
-  #question(2)[
-    Sub-question.
-  ]
-  #question(0)[
-    Another sub-question.
-    #question(1)[
-      Sub-sub-question.
-    ] <ex:qs:that-one>
-    #question(1)[
-      Another sub-sub-question.
-    ]
-  ]
-]
-#question[2 points, -2 if wrong][
-  The risky bonus question.
-]
-You see #link(<ex:qs:that-one>)[that question]?
-```)
-
-== Referencing Questions
-Questions can be referenced by their automatically assigned labels. For example, question 1.b.ii has label `<qs:1-b-ii>` and can be referenced by `#link(<qs:1-b-ii>)[That question]`. Note that it cannot be referenced by `@qs:1-b-ii`.
-
-If, for some reason, questions with the same numbering occurs multiple times, a number indicating order of occurrence will be appended to the label. For example, the first 1.b will be labeled `<qs:1-b>`, and the second occurrence of numbering will have label `<qs:1-b_2>`.
-
-As you are constructing your project, the numbering automatically assigned to a question may change. If you want a static reference, which will be preferable in most cases, you can assign a custom label to the question.
-
-Just as in the #link(<ex:qs-block>)[example above], adding a ```typc <label-name>``` after the question creates a custom label that would not change with order of questions.
-
-
-= Solution
-The `solution()` function is to create a solution block.
-#block(
-  breakable: false,
-  grid(
-    columns: 2,
-    gutter: 1em,
-    align: horizon,
-    ```typst
-    #solution[
-      The solution to the question.
-      // Change color, remove supplement
-      #solution(color: orange, supplement: none)[
-        Sub-solution.
-      ]
-      // Change supplement
-      #solution(supplement: [*My Answer*: ])[
-        Another sub-solution.
-      ]
-    ],
-    ```,
-    solution[
-      The solution to the question.
-      // Change color, remove supplement
-      #solution(color: orange, supplement: none)[
-        Sub-solution.
-      ]
-      // Change supplement
-      #solution(supplement: [*My Answer*: ])[
-        Another sub-solution.
-      ]
-    ],
+The `question` function is to create a question object. <ex:qs-block>
+#showcode(
+  wrap: "qns",
+  ```typc
+  question(
+    [The question.],
+    question(
+      point: 1,
+      label: "special",
+      [Sub-question.]
+    ),
+    question(
+      [Another sub-question.],
+      question(
+        point: 1,
+        [Sub-sub-question.],
+      ),
+      question(
+        point: 2,
+        [Another sub-sub-question.],
+      )
+    )
   ),
+  ```,
 )
 
-Solution is usually put in a question block as a response to it.
-```typst
-#question(1)[
-  What is the answer to the universe, life, and everything?
-  #solution[ The answer is 42. ]
-]
-```
+The "4 points" and "3 points" question above had no point specified: parent questions get the sum of their children questions' points, if their own `point` is left blank.
 
-== Hiding Solutions
-There are 2 ways to hide solutions.
+== Referencing Questions
+The recommended way is as in the #link(<ex:qs-block>)[example above], provide a `label` argument, and then you can refer to it using
+#showcode(```typst @qs:special```)
+If provided with a `str`, the label created will automatically have a head, "qs:", for clarity.
+Otherwise, nothing is added and you will get what you put in.
 
-To disable all solutions (all solutions will not show, no matter what), provide `hide-solution` to compile inputs:
-```bash
-typst compile filename.typ --input hide-solution=true
-```
-The value can be any of `true`, `1`, `yes`, `y`.
-
-This flag is also visible in the `unsafe` module as ```typc __solution-disabled```.
-
-To hide arbitrary solutions, use ```typc toggle-solution()``` before the solutions you wish to hide.
-In this case, individual solutions can be forced to show by setting ```typc force: true``` in the ```typc solution()``` function.
+For alternative reference text, use the `cite` syntax sugar
+#showcode(```typst @qs:special[This special one.]```)
+or the full syntax
 #showcode(```typst
-#solution[Visible.]
-// toggle solutions off
-#toggle-solution(false)
-#solution[Hidden.]
-// force it to show
-#solution(force: true)[Forced to be visible.]
-// toggle them back on
-#toggle-solution(true)
-#solution[Visible again.]
+#ref(
+  <qs:special>,
+  supplement: [This special one.]
+)
 ```)
 
+When a `label` is not provided, this template does attach one for you, based the question number.
+However, such numbers can easily vary, set a special label for stability.
+#showcode(```typst @qs:1-b-ii```)
 
+= Solution
+The `solution` function is to create a solution object.
+#showcode(
+  dir: ttb,
+  wrap: "qns",
+  ```typst
+  question(
+    [Shall I pass MATH 100?],
+    solution(
+      [You shall #strike[not] pass!],
+      // Change target and supplement
+      solution(
+        target: <qs:special>,
+        label: "pass",
+        supplement: [*Response to a distant question:*\ ],
+        [You can target any question, or even `none`. How cool!]
+      )
+    ),
+  )
+  ```,
+)
+
+A solution is does not need to be in a question.
+
+== Referencing Solutions
+Similar to the questions, you may provide solutions with unique label in order to reference them.
+They are not automatically labelled.
+#showcode(```typst
+@sn:pass \
+@sn:pass[Pass.]
+```)
+
+Note that, when a solution does have a target question, the default reference text contain a link to the question as well.
+Hence, if you click on the part after "to...", it jumps to the question instead of the solution.
+
+However, those with custom supplement link to only the solution.
 
 = Drawing
-As we are doing math, inevitably we will need to draw some graphs.
-
-Typically, you would not want to commit time and effort to learn drawing in Typst. Have your graphs done in Desmos, GeoGebra, or any other graphing tools, then display images of them.
+Typically, you would not want to commit time and effort to learn drawing in Typst. Have your graphs done in Desmos, GeoGebra, or whatever, then display images of them.
 ```typst
-#image("/template/assets/madeline-math.jpg", width: 12em) // n'em = length of n m's
+#image("template/assets/madeline-math.jpg", width: 6cm)
 ```
-#image("/template/assets/madeline-math.jpg", width: 12em)
+#image("template/assets/madeline-math.jpg", width: 6cm)
 
-You may have noticed that the path in example starts with "/". It is not your computer's root directory, but the root directory of the project.
+Note that Typst cannot reach beyond the project root directory, so put your assets inside the project folder.
 
-If you are working offline, note that Typst cannot reach beyond the root directory, settable in the compiling command.
+== Instructor: Drawing in Typst
+Typst has native drawing capability, but quite limited.
+There is an ad hoc Typst drawing library, a package actually, called "cetz".
 
-== Drawing in Typst
-So...
-
-Typst has some native drawing abilities, but they are very limited.
-There is an ad hoc Typst drawing library, a package actually, called "cetz", with its graphing companion "cetz-plot".
-Simply
+In this template,
 ```typst
 #import drawing: *
 ```
-to let the template import them for you.
+to make `cetz` and other drawing helpers available.
 
-For general drawing techniques, refer to the #link("https://cetz-package.github.io/docs/")[cetz documentation].
-For graphing, download and refer to the #link("https://github.com/cetz-package/cetz-plot/blob/stable/manual.pdf?raw=true")[cetz-plot manual].
+For data visualization, use #link("https://lilaq.org/")[lilaq].
+For generic drawing, use #link("https://cetz-package.github.io/docs/")[cetz].
+For generic plotting, use #link("https://github.com/cetz-package/cetz-plot/blob/stable/manual.pdf?raw=true")[cetz-plot].
 
-There are other drawing packages available, but not imported by this template, here is a brief list:
+There are other drawing packages available, but not included in the `drawing` module, here is a brief list:
 - #link("https://staging.typst.app/universe/package/fletcher")[fletcher]: nodes & arrows;
 - #link("https://staging.typst.app/universe/package/jlyfish")[jlyfish]: Julia integration;
 - #link("https://staging.typst.app/universe/package/neoplot")[neoplot]: Gnuplot integration.
 
 Find more visualization packages #link("https://staging.typst.app/universe/search/?category=visualization&kind=packages")[here].
-== Template Helpers
-Besides importing the drawing packages, the `drawing` module also provides some helper functions.
 
-For example, the `cylinder()` function draws an upright no-perspective cylinder.
+== Template Helpers
+The `drawing` module has its own drawing helpers.
+For example, the `cylinder()` function draws an upright no-perspective cylinder:
 #showcode(```typst
 #import drawing: *
 #cetz.canvas({
@@ -626,22 +538,27 @@ For example, the `cylinder()` function draws an upright no-perspective cylinder.
     rotate(30deg)
     cylinder(
       (0, 0), // Center
-      (1.618, .6), // Radius: (x, y)
-      2cm / 1.618, // Height
-      fill-top: maroon.lighten(5%), // Top color
+      (1.618, .6), // Ellipse radius
+      2 / 1.618, // Height
+      fill-top: gradient.linear(
+        black.lighten(50%),
+        black.lighten(95%),
+        white,
+        angle: -60deg
+      ), // Top color
       fill-side: blue.transparentize(80%), // Side color
     )
   })
 })
 ```)
 
-== Example//s
+== Example
+Below is a more elaborate drawing.
 #[
   // Import the drawing module for drawing abilities.
-  #import "/drawing.typ": * // You should use the next line instead
-  // #import drawing: *
+  #import drawing: *
   #figure(
-    caption: [Adaptive path-position-velocity graph \ (check source code)],
+    caption: [Adaptive path-position-velocity graph],
     cetz.canvas({
       import cetz.draw: *
       import cetz-plot: *
@@ -672,7 +589,7 @@ For example, the `cylinder()` function draws an upright no-perspective cylinder.
       // size is 4 * 4, which is 2 times of plot (domain, range) = (2, 2),
       // hence the transformation is (x + 1, y) * 2
       set-origin("path.left")
-      // Draw laying cylinder
+      // Draw cylinder laying
       group({
         rotate(90deg)
         cylinder((0, 0), (2, 1), 4cm, fill-side: blue.transparentize(90%), fill-top: blue.transparentize(80%))
@@ -697,27 +614,50 @@ For example, the `cylinder()` function draws an upright no-perspective cylinder.
 ]
 
 
-= Caveats
-This package is still in development, so breaking changes might be introduced in the future (you are fine as long as you don't update the compile or the package version).
+#pagebreak(weak: true)
 
-== `unsafe` Module
-This template comes with a module called `unsafe`.
-As obvious, use of its fields or functions is not safe --- may break the template.
-This module is intended for debugging and 'tricks' only. Please make sure that you know what you are doing, should you decide to use it.
+= Advanced
+This part assumes familiarity of Typst.
 
-== Language Support
-Though you may use other languages, this template is not optimized for them.
-In case which the language typesets differently from English, e.g. Chinese and Arabic, you will have to tinker it or accept weird results.
+== Internals
+The `internal` module allows access to all internal variables---fields and functions that are not of the ordinary user interface.
+#showcode(```typst
+#repr(dictionary(internal))
+```)
 
-== Non-raw Student Number (`id`)
-It is possible to use `str` or `content` as a student number for `author()`. This is to be compatible with possible non-numerical formats. When the field can be converted to plain text, it will be displayed as `raw`. Otherwise, the original content will be used, potentially causing inconsistencies. It is recommended that you use `int` or simple `str` for student numbers.
+You can call all the internal functions, just read the friendly manual, a.k.a. the function signatures, or you would mess up.
+#showcode(```typst
+#internal.components.target-visualizer(
+  <qs:special>,
+  t => link(t)[I'd make you a `link`, not `ref`.]
+)
+```)
 
-== Author Metadata
-You are allowed to put `content` as an author's name, as there might be special characters or formatting in the name. However, should anything that Typst cannot convert to plain text be used, the part of the name would not be converted to plain text, and will be replaced by `<unsupported>` when converting to PDF metadata. In that case, you should provide the named argument `strname` to `author()` to specify a plain text version of the name.
+== Config
 
-== Partial Functions
-TL;DR:
-Use the functions like a normal person and as instructed.
+=== `defaults` Namespace
+We already have the `defaults` dictionary, which looks like:
+#defaults.pairs().slice(0, 3).to-dict()
 
-Not to be confused with partial application. Some functions in this template are partial, meaning that they are not defined for all possible arguments of the specified type. For example, the ```typc question()``` function can break if passed `counters`, `labels` etc. are not right.
+The `internal.default` module is not the same, because the apparent `defaults` is just the `config` field of the `defaults` module, taking over the name.
 
+=== Propagating Config
+Since only the `config` field is taken when you provide a module as config, the process to make `config` or other variables in the module does not matter.
+You are free to do whatever in your config file (then imported as a module) to propagate that config.
+
+== Author
+
+=== Special Name Content
+In some (unlikely) cases, one's name cannot be converted to plain text.
+Take #underline(text(fill: purple)[Ga])#strike[*_lli_*]#overline($cal("leo")$) as an example. The name is so special that it cannot be converted to plain text. You may provide a `plain` version of it to avoid incomprehensible PDF metadata.
+```typc
+author(
+  [#underline(text(fill: purple)[Ga])#strike[*_lli_*]#overline($cal("leo")$)],
+  "Smith",
+  12345678,
+  plain: "Gallileo Smith"
+)
+```
+
+=== Custom Name Format
+[TODO]

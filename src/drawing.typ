@@ -1,5 +1,6 @@
 #import "@preview/cetz:0.4.0"
 #import "@preview/cetz-plot:0.1.2"
+#import "@preview/lilaq:0.3.0"
 
 /// Get the 2D coordinates in form of (x: i, y: j).
 /// - coord (array, dictionary): The coordinates, must be 2-elements long.
@@ -18,10 +19,6 @@
 /// - fill-top (color): The color to fill the top of the cylinder.
 /// - fill-side (color): The color to fill the side of the cylinder.
 #let cylinder(center, radius, height, fill-top: none, fill-side: none) = {
-  assert(type(center) in (array, dictionary))
-  assert(type(radius) == array)
-  assert(type(height) == length)
-
   import cetz.draw: *
   let center = get-2d-coord(center)
   let lt = (center.x - radius.at(0), center.y)

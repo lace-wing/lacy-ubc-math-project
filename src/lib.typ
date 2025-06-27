@@ -5,11 +5,12 @@
 #import "defaults.typ": config as defaults
 #import "util.typ"
 
-#import "components.typ"
-#import components: author, question, solution, feeder, components-wrapper as qns
+#import "components.typ": author, question, solution, feeder, components-wrapper as qns
 #import "markscheme.typ"
 #import "shorthand.typ": *
 #import "drawing.typ"
+
+#import "internal.typ"
 
 /*******
  * Setup
@@ -19,19 +20,17 @@
 /// [WARN] `authors` requires specific structure, use function `author()` to help construct them.
 ///
 /// - project (str, content): The name of the project.
-/// - number (int, float, version, none): The number of the project.
-/// - flavor (str, content, none): The flavor of the project.
 /// - group (str, content, none): The group name.
+/// - implicit-head (bool): Whether to implicitly generate a project head of the title, group and authors.
 /// - config (dictionary, module, array): The config, containing various document processing and style information. Can be an `array` of configs in `dictionary` a/o `module`.
 /// - authors (arguments): The authors of the project.
 /// - body (block): The content of the document.
 ///
 /// -> content
 #let setup(
-  project: "Group Project",
-  number: none,
-  flavor: none,
+  title: "Group Project",
   group: none,
+  implicit-head: true,
   config: (:),
   ..authors,
   body,
@@ -47,23 +46,12 @@
   // make authors
   #let authors = authors.pos().map(a => if type(a) == function { a() } else { a })
 
-  // make title
-  #let title = {
-    [#project]
-    if number != none {
-      " " + str(number)
-    }
-    if flavor != none {
-      ", Flavor " + flavor
-    }
-  }
-
   // populate title and author metadata
   #set document(
     title: title,
     author: authors.map(a => {
-      if type(a.ascii) == str {
-        return a.ascii
+      if type(a.plain) == str {
+        return a.plain
       }
       if type(a.name.first) == content {
         if "text" in a.name.first.fields() {
@@ -121,15 +109,17 @@
   #show: qns-nullifier
 
   //REGION: doc head
-  #project-head-visualizer(
-    title,
-    group,
-    author-set-visualizer(
-      authors.map(a => author-visualizer(a, config: conf)),
+  #if implicit-head {
+    project-head-visualizer(
+      title,
+      group,
+      author-set-visualizer(
+        authors.map(a => author-visualizer(a, config: conf)),
+        config: conf,
+      ),
       config: conf,
-    ),
-    config: conf
-  )
+    )
+  }
 
   #body
 ]

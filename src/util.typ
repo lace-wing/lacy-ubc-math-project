@@ -1,12 +1,22 @@
+/// The doc-wide config.
 #let config-state = state("lacy-ubc-math-project-config", (:))
 
+/// Compose a series of functions with a body.
+///
+/// - body (any): The body to execute things on.
+/// - funcs (arguments): The functions to be composed, left-to-right.
+/// -> any
 #let compose(body, ..funcs) = (body, ..funcs.pos()).reduce((it, func) => if type(func) == function {
   func(it)
 } else {
   it
 })
 
-#let try-dict(data) = {
+/// Convert `data` to a dictionary, panic on fail.
+///
+/// - data (dictionary, module, function, arguments): The data to convert to dictionary.
+/// -> dictionary
+#let to-dict(data) = {
   let t = type(data)
   if t == dictionary {
     return data
@@ -15,7 +25,7 @@
     return dictionary(data)
   }
   if t == function {
-    return try-dict(t())
+    return to-dict(t())
   }
   if t == arguments {
     return data.named()
@@ -23,6 +33,12 @@
   panic("Cannot convert a " + t + " to a dictionary!")
 }
 
+/// Merge dictionaries, left-to-right.
+/// On merge, values of existing keys are replaced, and values of new keys are added.
+/// Values of type `dictionary` are not merged, instead their own pairs are merged.
+///
+/// - dicts (arguments): The `dictionary`s to be merged.
+/// -> dictionary
 #let merge-dicts(..dicts) = (
   dicts
     .pos()
@@ -38,8 +54,11 @@
       ))
 )
 
+/// Merge dictionaries, but non-`dictionary` arguments are first converted to `dictionary` and the value of the "config" key is taken.
+///
+/// - conf (arguments): The `dictionary`s a/o `module`s to be merged. Can also be `arguments` or anything accepted by `util.to-dict`.
+/// -> dictionary
 #let merge-configs(..conf) = merge-dicts(
-  ..conf.pos().map(c => if type(c) == module { try-dict(c).at("config", default: (:)) } else { try-dict(c) }),
+  ..conf.pos().map(c => if type(c) == module { to-dict(c).at("config", default: (:)) } else { to-dict(c) }),
 )
-
 

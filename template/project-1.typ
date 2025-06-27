@@ -1,14 +1,11 @@
 #import "@preview/lacy-ubc-math-project:0.2.0": *
-// Import markscheme as "m" so it is easier to type, then markit so it is easier to call (no need of "m.markit").
-#import markscheme as m: markit
 // Import the user config, including author information.
 #import "config.typ": *
-
+// Import markscheme as "m" so it is easier to type, then markit so it is easier to call (no need of "m.markit").
+#import markscheme as m: markit
 #set page(foreground: m.foreground-marking)
 
 #show: setup.with(
-  number: 1,
-  flavor: [A], // Don't want a flavor? Just remove this line.
   group: group-name,
   config: config, // Non-default config from config.typ
   // In config.typ, we set up these author information.

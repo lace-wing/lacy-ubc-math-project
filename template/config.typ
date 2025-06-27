@@ -7,7 +7,7 @@
 // They are here, rather than being in the project file, so they can be conveniently reused in other projects of your group.
 // Note that the `author` function is used for creating authors, please do the same for your authors.
 
-#let jane-doe = author("Jane", "Doe", 31415926, more: 1)
+#let jane-doe = author("Jane", "Doe", 31415926)
 #let alex-conquitlam = author(
   "Alex",
   // If the name is a bit unusual, you can still have them!
@@ -18,7 +18,7 @@
   // Just in case the name is incompatible with PDF metadata or your reader...
   // you can provide a `str` containing only Ascii characters.
   // (Or whatever works, really.)
-  ascii: "Alex Coquitlam",
+  plain: "Alex Coquitlam",
 )
 
 // This is the user config, it should be named "config".

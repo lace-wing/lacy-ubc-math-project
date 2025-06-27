@@ -12,15 +12,15 @@
 /// See more of its usage in documentation of the `setup()` function.
 ///
 /// - firstname (str, content): The first name.
-///   [WARN] If `content` is given, make sure Typst can convert it to `str`, or also provide an `ascii`; else in the author metadata it will show as "`<unsupported>`"
+///   [WARN] If `content` is given, make sure Typst can convert it to `str`, or also provide an `plain`; else in the author metadata it will show as "`<unsupported>`"
 /// - lastname (str, content): The last name, i.e. surname.
-///   [WARN] If `content` is given, make sure Typst can convert it to `str`, or also provide an `ascii`; else in the author metadata it will show as "`<unsupported>`"
+///   [WARN] If `content` is given, make sure Typst can convert it to `str`, or also provide an `plain`; else in the author metadata it will show as "`<unsupported>`"
 /// - id (int, str, content): An ID, perhaps a student number.
 ///  Will be wrapped in `raw()`, displaying with "code" style.
 ///  If Typst cannot convert it to `str`, the above will not apply.
-/// - ascii (str, none): A string, which is the Ascii representation of the *full* name.
+/// - plain (str, none): A string, which is the plain representation of the *full* name.
 /// -> function
-#let author(firstname, lastname, id, ascii: none, config: (:), ..pass) = (..args) => {
+#let author(firstname, lastname, id, plain: none, config: (:), ..pass) = (..args) => {
   let argp = args.pos()
   let argn = args.named()
 
@@ -31,7 +31,7 @@
         last: lastname,
       ),
       id: id,
-      ascii: ascii,
+      plain: plain,
       prefix: none,
       suffix: none,
       config: config,
@@ -42,13 +42,19 @@
   )
 }
 
+/// Grow author objects by calling each if it is a function.
+///
+/// - authors (array): The `author()`s to grow.
+/// -> array
+#let authors-grower(authors) = authors.pos().map(a => if type(a) == function { a() } else { a })
+
 /// Visualize an author object.
 ///
 /// - author (dictionary): The author object to visualize.
 /// - config (dictionary): The config.
 /// -> content
-#let author-visualizer(author, config: (:)) = {
-  let conf = merge-configs(config, author.config)
+#let author-visualizer(aut, config: (:)) = {
+  let conf = merge-configs(config, aut.config)
 
   (conf.author.container)(
     stack,
@@ -57,24 +63,24 @@
       spacing: .65em,
     ),
     (
-      author: author,
+      author: aut,
       name: (conf.author.affix-format)(
         (conf.author.name-format)(
-          author.name.first,
-          author.name.last,
+          aut.name.first,
+          aut.name.last,
         ),
-        author.prefix,
-        author.suffix,
+        aut.prefix,
+        aut.suffix,
       ),
       id: (
-        if type(author.id) in (int, decimal, float) {
-          raw(str(author.id))
-        } else if type(author.id) == str {
-          raw(author.id)
-        } else if type(author.id) == content and "text" in a.id.fields() {
-          raw(author.id.text)
+        if type(aut.id) in (int, decimal, float) {
+          raw(str(aut.id))
+        } else if type(aut.id) == str {
+          raw(aut.id)
+        } else if type(aut.id) == content and "text" in a.id.fields() {
+          raw(aut.id.text)
         } else {
-          author.id
+          aut.id
         }
       ),
     ),
@@ -82,12 +88,17 @@
   )
 }
 
+/// Visualize a set of authors.
+///
+/// - authors (array): The set of author to visualize.
+/// - config (dictionary): The config.
+/// -> content
 #let author-set-visualizer(authors, config: (:)) = {
   (config.author.set-container)(
     // the grid for rows
     grid,
     (
-      columns: 1,
+      columns: 1fr,
     ),
     (
       authors: authors,
@@ -104,11 +115,18 @@
   )
 }
 
+/// Visualize the project head.
+///
+/// - title (content, str): The project title.
+/// - group (content, str): The group name.
+/// - authors (content): The *visualized* authors.
+/// - config (dictionary): The config.
+/// -> content
 #let project-head-visualizer(title, group, authors, config: (:)) = {
   (config.head.container)(
     grid,
     (
-      columns: 1,
+      columns: 1fr,
       align: center,
       inset: .65em,
     ),
@@ -118,6 +136,30 @@
       authors: authors,
     ),
     config: config,
+  )
+}
+
+/// Explicitly visualize a project head from raw `setup()` arguments.
+/// It is a `context {}`.
+///
+/// - title (content, str): The project title.
+/// - group (content, str): The group name.
+/// - authors (array): The *raw, un-visualized* authors objects.
+/// - config (dictionary): The config.
+///   [WARN] This config is merged with the global config state, i.e. the one you gave `setup`.
+/// -> content
+#let visualize-project-head(title, group, ..authors, config: (:)) = context {
+  let conf = merge-configs(config-state.get(), config)
+
+  let authors = authors-grower(authors)
+  project-head-visualizer(
+    title,
+    group,
+    author-set-visualizer(
+      authors.map(a => author-visualizer(a, config: conf)),
+      config: conf,
+    ),
+    config: conf,
   )
 }
 
@@ -477,7 +519,7 @@
         supplement: _ => (
           conf.solution.supplement
             + if sol.target != none {
-              [ to #ref(sol.target)]
+              [ to #underline(ref(sol.target))]
             }
         ),
         numbering: _ => h(-.3em),
