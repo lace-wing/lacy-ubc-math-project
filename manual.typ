@@ -97,18 +97,14 @@ The two popular choices among students for typesetting math content, Word and La
 
 Word, sounds familiar and easy, but...
 - the math formatting (MathType) may be uncomfortable;
-- you pretty much have to use MS Word/WPS/Google Doc/Pages, because...
-- the editing experience using "libre" solutions like LibreOffice are subpar;
+- you pretty much have to use MS Word/WPS/Google Doc/Pages, the editing experience using "libre" solutions like LibreOffice are subpar;
 - many do not really know how to make use of Word, like styles, ruler, tab stops and template, so documents get messy.
 
 LaTeX is a powerful and professional academic typesetting system, plus, you can use your favorite text editor, but...
-- document source can quickly become hardly readable;
 - the syntax may be cryptic;
 - the error messages are cryptic;
 - compilation (PDF generation) can be slow;
-- collaboration of more than two people (on Overleaf) requires either an #text(fill: black.transparentize(67%))[overpriced] subscription, or workarounds.
 
-How about elegant math typesetting, blazingly fast layout and unlimited collaboration?
 #block(
   breakable: false,
   grid(
@@ -137,10 +133,6 @@ Still in development, Typst is more than enough for our use cases:
 - integration with your favorite text editor;
 - a modern, free and collaborative #link("https://typst.app")[online editor];
 - easy customization by user, relative to LaTeX.
-
-However, notice some caveats of Typst:
-- it is still in the version `0.something` area, meaning breaking changes can be introduced;
-- its current ecosystem may not suffice if you want some really fancy or niche stuff.
 
 #counter(page).update(0)
 #set page(numbering: "1")
@@ -187,19 +179,20 @@ Do not forget to surround elements of a solution with (), if there are more than
 #showcode(
   dir: ttb,
   ```typst
-#qns(
-  question(
-    [What is $1 + 1$?], // ← append a comma, if absent
-    solution[It is 2.] // Make sure it is inside the question you are answering to.
-  ),
-  question(
-      [Good, now solve $integral_0^pi sin(x) dd(x)$.],
-      solution[
-        Ah yes, this is a classic application of the Quantum Turnip Theorem, which tells us that for any integral involving sine, polynomials, and irrational enthusiasm, the approach is to first change variables into invisible ducks.
-      ]
+  #qns(
+    question(
+      [What is $1 + 1$?], // ← append a comma, if absent
+      solution[It is 2.] // Make sure it is inside the question you are answering to.
+    ),
+    question(
+        [Good, now solve $integral_0^pi sin(x) dd(x)$.],
+        solution[
+          Ah yes, this is a classic application of the Quantum Turnip Theorem, which tells us that for any integral involving sine, polynomials, and irrational enthusiasm, the approach is to first change variables into invisible ducks.
+        ]
+    )
   )
+  ```,
 )
-```)
 
 If the project is provided with a corresponding `config.typ`, consider if it conflicts with yours, if any.
 
@@ -495,6 +488,39 @@ Hence, if you click on the part after "to...", it jumps to the question instead 
 
 However, those with custom supplement link to only the solution.
 
+= Config
+There is a default config, `defaults`, and a `config` that you import from `config.typ`, suppose you followed the template.
+
+For the configs you give, the first to the last and one by one, the latter's entries replaces the former's in case of duplication.
+The "zero-th" config is `defaults`.
+
+A set of config is called a theme.
+The package has a `theme` module, which of course contains built-in themes; PR is welcome!
+
+To apply a theme, simply put
+```typc
+setup.with(
+  // ...
+  config: theme.ubc-light, // Obviously, a UBC package comes with UBC themes.
+)
+```
+
+To merge your own config with the theme, and let your config take priority,
+
+```typc
+setup.with(
+  // ...
+  config: (
+    theme.ubc-light,
+    config, // The latter's entries replace the formers!
+  )
+)
+```
+
+Besides, you can pass configs to individual components of this package, such as `author`, `question` and `solution`.
+They need the full config, not just their respective entry.
+In addition, components in the `qns` wrapper will pass their config down to children components.
+
 = Drawing
 Typically, you would not want to commit time and effort to learn drawing in Typst. Have your graphs done in Desmos, GeoGebra, or whatever, then display images of them.
 ```typst
@@ -617,6 +643,28 @@ Below is a more elaborate drawing.
 = Advanced
 This part assumes familiarity of Typst.
 
+== Feeder
+There is a special component, `feeder`.
+Like `question` and `solution`, it is used in `qns` and can contain children components.
+
+However, its also takes a positional argument `proc`.
+`proc` is an arbitrary function, the only requirement is that it should be able to take in all its components and named arguments: the components will first be "visualized", meaning converted to visual content, then passed to `proc` positionally; the named arguments of the `feeder` are passed as named arguments.
+
+#showcode(
+  wrap: "qns",
+  ```typc
+  feeder(
+    table.with(
+      columns: 2,
+    ),
+    stroke: blue,
+    question[What can I know?],
+    question[What should I do?],
+    [What may I hope?]
+  )
+  ```,
+)
+
 == Internals
 The `internal` module allows access to all internal variables---fields and functions that are not of the ordinary user interface.
 #showcode(```typst
@@ -635,7 +683,7 @@ You can call all the internal functions, just read the friendly manual, a.k.a. t
 
 === `defaults` Namespace
 We already have the `defaults` dictionary, which looks like:
-#defaults.pairs().slice(0, 3).to-dict()
+#defaults.pairs().slice(1, 3).to-dict()
 
 The `internal.default` module is not the same, because the apparent `defaults` is just the `config` field of the `defaults` module, taking over the name.
 
