@@ -1,11 +1,8 @@
 VER = 0.2.0
 SRC = $(wildcard src/*.typ)
 
-# config: $(CONF)
-# 	pkl eval $? -f yaml -o $(subst .pkl,.yaml,$?)
-
 clean:
-	rm -f src/*.pdf
+	rm -f src/**/*.pdf
 	rm -f template/*.pdf
 	rm -f test/*.pdf
 

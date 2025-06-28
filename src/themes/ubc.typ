@@ -76,7 +76,10 @@
           if k in ("link", "ref") {
             none
           } else {
-            (color-major: major, color-minor: minor)
+            (
+              color-major: major,
+              color-minor: minor,
+            )
           }
         ),
     ))

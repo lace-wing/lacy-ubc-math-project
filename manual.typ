@@ -81,7 +81,7 @@
   ),
   title: [
     #text(fill: black.transparentize(67%))[Lacy-UBC]
-    Math Group Project Template \ User Manual
+    Math Group Project Template \ User Manual #toml("typst.toml").package.version
   ],
 )
 

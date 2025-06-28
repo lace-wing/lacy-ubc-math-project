@@ -1,17 +1,17 @@
 #import "@preview/lacy-ubc-math-project:0.2.0": *
-#import markscheme as m: markbox
+#import markscheme as m: markit
 #import drawing: *
 
 #import "config.typ": *
+#import theme: ubc-light
 
 #show: setup.with(
   number: 3,
   group: group-name,
   jane-doe,
-  alex-conquitlam[(NP)]
+  alex-conquitlam[(NP)],
+  config: ubc-light
 )
-
-#let solution = solution.with(supplement: text(defaults.colors.solution.major)[*Solution: *])
 
 #let rule = {
   v(0.2em)
@@ -63,14 +63,14 @@ At this point in the course, having written the first test and completed a pair 
 
 What is the average score of your team members? (Be honest with yourselves; no points will be awarded based on what this average score is.) In one or two paragraphs, describe at least two concrete steps you can take to help each other raise that score.
 
-#qna(
+#qns(
   config: (
     solution: (
       container: defaults.solution.container.with(markscheme: true),
     ),
   ),
   solution[
-    #markbox(m.c(2))[Individual scores:
+    #markit(m.c(2))[Individual scores:
       - ???
       - ???
       - ???
@@ -78,16 +78,16 @@ What is the average score of your team members? (Be honest with yourselves; no p
       Average: ?
     ]
 
-    #markbox(lorem(122), m.c(3))
+    #markit(lorem(122), m.c(3))
 
-    #markbox(lorem(98), m.c(4))
+    #markit(lorem(98), m.c(4))
   ],
 )
 
 
 = Assignment questions
 
-#qna(
+#qns(
   question(
     [
       An elastic tube is being stretched so that its diameter grows while its length stays the same. Initially, its inner radius is 1cm and the thickness of the material making up the tube is 1 cm.
@@ -201,7 +201,7 @@ What is the average score of your team members? (Be honest with yourselves; no p
               table(
                 columns: (25%,) * 2,
                 inset: .65em,
-                stroke: .5pt + defaults.colors.solution.major,
+                stroke: ubc-light.solution.stroke-minor,
                 align: center + horizon,
                 $d(t_0)$, $x(t_0)$,
                 $3$, $ c / 3 $,
@@ -324,9 +324,9 @@ What is the average score of your team members? (Be honest with yourselves; no p
         solution[
           $
             cases(
-              dv(r, t) = -5 "for" t lt 8,
-              dv(r, t) = "DNE" "for" t = 8,
-              dv(r, t) = 5 "for" t gt 8,
+              dv(r, t) = -5 quad&(t < 8),
+              dv(r, t) = "DNE" quad&(t = 8),
+              dv(r, t) = 5 quad&(t > 8),
             )
           $
 
@@ -346,8 +346,8 @@ What is the average score of your team members? (Be honest with yourselves; no p
           2. At $r = qty("0", "cm")$, which $t = 8$, derivatives of each side of $t$ are:
             $
               cases(
-                dv(v, t) = (5r) / 8 "for" t lt 8,
-                dv(v, t) = -(5r) / 8 "for" t gt 8,
+                dv(v, t) = (5r) / 8 quad&(t < 8),
+                dv(v, t) = -(5r) / 8 quad&(t > 8),
               )
             $
             Since $r$ is always positive when $t eq.not 8$, $(5r) / 8 > 0, -(5r) / 8 < 0$, meaning $v(8)$, as the only singularity/critical point, is the sole maxima. The rate of change of fluid velocity, $dv(v, t)$, should be $qty("0", "cm/s^2")$.
