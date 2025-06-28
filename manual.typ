@@ -187,7 +187,7 @@ Do not forget to surround elements of a solution with (), if there are more than
     question(
         [Good, now solve $integral_0^pi sin(x) dd(x)$.],
         solution[
-          Ah yes, this is a classic application of the Quantum Turnip Theorem, which tells us that for any integral involving sine, polynomials, and irrational enthusiasm, the approach is to first change variables into invisible ducks.
+          Ah yes, this is a classic application of the Quantum Turnip Theorem, which tells us that for any integral involving sine, the approach is to first change variables into invisible ducks.
         ]
     )
   )
@@ -238,11 +238,12 @@ By default, they are displayed like:
     ),
   )
 }
+<ex:head>
 
 These title and authors given to ```typc setup()``` are also saved to PDF metadata, which is reflected in the PDF document properties.
 
 / Caveat: At this point, only one name format, "first last", is in the defaults. Contribution is welcome.
-  But, how could Zhangsan and Yamada Hanako work-around to get their name displayed correctly? See Advanced [TODO].
+  But, how could Zhangsan and Yamada Hanako work-around their name display? See #link(<sc:custom-name>)[Advanced: Custom Name Format].
 
 == Reusable Content
 Since one group can take on multiple projects, it is wise to save common features like the members' information and the group name for multiple uses.
@@ -437,7 +438,7 @@ The recommended way is as in the #link(<ex:qs-block>)[example above], provide a 
 If provided with a `str`, the label created will automatically have a head, "qs:", for clarity.
 Otherwise, nothing is added and you will get what you put in.
 
-For alternative reference text, use the `cite` syntax sugar
+For alternative reference text, use the `ref` syntax sugar
 #showcode(```typst @qs:special[This special one.]```)
 or the full syntax
 #showcode(```typst
@@ -486,7 +487,7 @@ They are not automatically labelled.
 Note that, when a solution does have a target question, the default reference text contain a link to the question as well.
 Hence, if you click on the part after "to...", it jumps to the question instead of the solution.
 
-However, those with custom supplement link to only the solution.
+However, those with custom supplement refer to only the solution.
 
 = Config
 There is a default config, `defaults`, and a `config` that you import from `config.typ`, suppose you followed the template.
@@ -521,6 +522,21 @@ Besides, you can pass configs to individual components of this package, such as 
 They need the full config, not just their respective entry.
 In addition, components in the `qns` wrapper will pass their config down to children components.
 
+== Built-in Themes
+Besides the default theme, there are:
+#(
+  dictionary(theme)
+    .keys()
+    .zip((
+      [
+        A small dose of UBC theme colors based on #link("https://assets.brand.ubc.ca/downloads/ubc_brand_identity_rules.pdf")[UBC Brand Identity Rules]
+      ],
+      [The same idea, but colors are switched for dark mode.],
+    ))
+    .map(((t, d)) => terms((raw(t), d), tight: false))
+    .join()
+)
+
 = Drawing
 Typically, you would not want to commit time and effort to learn drawing in Typst. Have your graphs done in Desmos, GeoGebra, or whatever, then display images of them.
 ```typst
@@ -551,7 +567,7 @@ There are other drawing packages available, but not included in the `drawing` mo
 
 Find more visualization packages #link("https://staging.typst.app/universe/search/?category=visualization&kind=packages")[here].
 
-== Template Helpers
+=== Instructor: Template Helpers
 The `drawing` module has its own drawing helpers.
 For example, the `cylinder()` function draws an upright no-perspective cylinder:
 #showcode(```typst
@@ -675,7 +691,7 @@ You can call all the internal functions, just read the friendly manual, a.k.a. t
 #showcode(```typst
 #internal.components.target-visualizer(
   <qs:special>,
-  t => link(t)[I'd make you a `link`, not `ref`.]
+  t => ref(t, supplement: repr(t))
 )
 ```)
 
@@ -705,5 +721,20 @@ author(
 )
 ```
 
-=== Custom Name Format
-[TODO]
+=== Custom Name Format <sc:custom-name>
+The `author` function accepts a `config`, in which the format of name, affixes, containers and show rules are defined.
+Namely, #defaults.author.keys().map(k => raw(k)).join(", ", last: [ and ]).
+
+We are particularly interested in `name-format`, because not all names follow the English style.
+```typc
+  author(
+    "San",
+    "Zhang",
+    27182818,
+    config: (author: (name-format: (f, l, ..s) => [*#l*#lower(f)])),
+  ),
+```
+
+The `name-format` function is called with a first name and a last name (for now, that is why we leave an `..s` to sink potentially more parameters for compatibility), and is supposed to produce the formatted name.
+
+By default it is ```typst[#first *#last*]```, above we change it to a more conventional Chinese name format, and #link(<ex:head>)[so it looks].

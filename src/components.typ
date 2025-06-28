@@ -243,7 +243,7 @@
 /// - target-display (content, str, function, auto): The display guide/override for the target.
 ///   - `auto` → a `ref()` to the target label, aligned right.
 ///   - `function` → called with `target`, and whatever returned.
-///   - otherwise, whatever `target-display`, wrapped in a `link()` to `target`, aligned right.
+///   - otherwise, whatever `target-display`, wrapped in a `ref()` to `target`, aligned right.
 /// -> content
 #let target-visualizer(target, target-display) = {
   // if not to display, return none
@@ -264,7 +264,7 @@
   // if display is definite, show it with link to target
   return [
     #set align(right)
-    #link(target, target-display)
+    #ref(target, supplement: target-display)
   ]
 }
 
